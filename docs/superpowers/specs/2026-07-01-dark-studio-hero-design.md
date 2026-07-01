@@ -86,9 +86,10 @@ Removidos: `RingAccent.tsx` e código morto não importado (`Cloud.tsx`, `Sky.ts
 ### Fase 2 — Bump (2.15 → 2.7)
 
 - Antecipação já embutida no arco (a lata chega "caindo").
-- Impacto: squash `x/z ×1.12, y ×0.9` em 0.15, retorno com `elastic.out(1, 0.5)`.
+- Impacto: squash `x/z ×1.12, y ×0.9` em 0.15, retorno com `elastic.out(1, 0.5)` em 0.55.
 - **Camera shake**: keyframes curtos em `camera.position.x/y` (amplitude ~0.06, duração 0.2, retorno a zero garantido no fim).
-- **ShockRing**: anel no piso em `y` do chão, escala 0.2 → 6 com `power3.out`, opacidade 0.5 → 0, duração 0.8.
+- **ShockRing**: anel plano no piso (`ringGeometry` fino, cor prata fria `#c8d4e6`, `meshBasicMaterial` transparente), escala 0.2 → 6 com `power3.out`, opacidade 0.5 → 0, duração 0.8.
+- Nota intencional: o retorno elástico (~até 2.85) e o ShockRing (~até 2.95) atravessam o instante `burst` (2.7) — inofensivo, pois a lata principal já está invisível e o anel é independente. Não "corrigir" encurtando.
 
 ### Fase 3 — Burst (2.7 → 4.6)
 
@@ -99,18 +100,18 @@ Removidos: `RingAccent.tsx` e código morto não importado (`Cloud.tsx`, `Sky.ts
 ### Fase 4 — Reveal (4.6 → 6.8)
 
 - Logo Red Bull (DOM, centro): `opacity 0→1`, `scale 0.85→1`, `filter: blur(12px)→blur(0)`, `power3.out`, duração 1.2.
-- Lettering "Red Bull te dá asas." (DOM, abaixo da logo): SplitText por caractere, cada char sobe de `yPercent: 120` dentro de máscara (`overflow: hidden` por linha), stagger 0.035, `power4.out`.
+- Lettering "Red Bull te dá asas." (DOM, abaixo da logo): SplitText por caractere, cada char sobe de `yPercent: 120` dentro de máscara (`overflow: hidden` por linha), duração 0.6 por char, stagger 0.035, `power4.out`.
 
 ### Fase 5 — Hold (6.8 → 7.5)
 
 - Nada novo entra; estado final segura até o pin soltar.
-- Flutuação sutil das latas assentadas: bob senoidal por `useFrame` (amplitude ~0.05, frequências dessincronizadas por índice), **ativa apenas quando o progresso do timeline passa de `burst + 1.8`** (lido via `timeline.time()`), somada como offset ao y do target para não brigar com o tween.
+- Flutuação sutil das latas assentadas: bob senoidal por `useFrame` (amplitude ~0.05, frequências dessincronizadas por índice), **ativa por clone quando `timeline.time()` passa de `burst + i × 0.05 + 1.8`** (fim do tween de posição daquele clone), somada como offset ao y do target para não brigar com o tween.
 
 ## Ambientação (specs)
 
 ### Gradiente de fundo
 
-- Esfera `BackSide` (raio 50) com `ShaderMaterial`: gradiente radial do centro da tela — `#0d1b2e` (centro) → `#05080f` (bordas), calculado em espaço de view direction (não world position — causa do bug atual).
+- Esfera `BackSide` (raio 50) com `ShaderMaterial`: gradiente radial do centro da tela — `#0d1b2e` (centro) → `#05080f` (bordas), calculado em espaço de view direction. (O branco estourado atual vem da mistura para `#ffffff` sob tone mapping combinada ao cálculo em world position; a paleta escura + view direction + dithering resolve ambos.)
 - **Dithering ordenado** no fragment (ruído hash × 1/255) para eliminar banding.
 - `depthWrite: false`, `renderOrder: -2`.
 
@@ -136,7 +137,7 @@ Removidos: `RingAccent.tsx` e código morto não importado (`Cloud.tsx`, `Sky.ts
 
 - **GSAP upgrade para ^3.13** (SplitText passou a ser gratuito). Registrar `SplitText` junto de `ScrollTrigger`/`useGSAP`.
 - Fonte via `next/font/google`: **Anton** para o lettering (uppercase, `clamp(2.5rem, 8vw, 7rem)`, letter-spacing levemente negativo), cor `#f4f4f6` com `text-shadow` de glow frio sutil.
-- Logo: `public/redbull-logo.svg` (baixado de Wikimedia Commons durante a implementação), renderizado via `<img>` com largura `clamp(180px, 26vw, 380px)`.
+- Logo: `public/redbull-logo.svg` (baixado de Wikimedia Commons durante a implementação), renderizado via `<img>` com largura `clamp(180px, 26vw, 380px)`. O arquivo é tratado como **substituível pelo usuário** — basta trocar o SVG em `public/` pelo asset oficial da marca quando disponível.
 - Overlay: `position: absolute; inset: 0` dentro da section pinada, `z-index` acima do canvas, `pointer-events: none`, conteúdo centralizado com flex.
 
 ## Estados iniciais e globais
