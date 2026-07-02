@@ -1,147 +1,176 @@
 "use client";
 
 import { useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
-
 import Backdrop from "./Backdrop";
-import RingAccent from "./RingAccent";
 import Lights from "./Lights";
 import MainCan from "./MainCan";
+import ShockRing from "./ShockRing";
 import ClonedCans, { ClonedCansHandle, CLONE_SCALE } from "./ClonedCans";
 import Effects from "./Effects";
+import { PHASES } from "@/lib/phases";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const CAN_SCALE = 9;
-
 const START = { x: -3.2, y: -3.6, z: -6 };
-const CENTER = { x: 0, y: 0, z: 0 };
 
-export default function Scene() {
+interface SceneProps {
+  timeline: gsap.core.Timeline | null;
+}
+
+export default function Scene({ timeline }: SceneProps) {
   const mainCanRef = useRef<THREE.Group>(null);
   const clonesRef = useRef<ClonedCansHandle>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+  const camera = useThree((state) => state.camera);
 
   useGSAP(
     () => {
       const mainCan = mainCanRef.current;
       const clones = clonesRef.current;
-      if (!mainCan || !clones) return;
-
-      mainCan.position.set(START.x, START.y, START.z);
-      mainCan.rotation.set(0.5, -1.6, 0.35);
-      mainCan.scale.setScalar(CAN_SCALE * 0.6);
-      mainCan.visible = true;
+      const ring = ringRef.current;
+      if (!timeline || !mainCan || !clones || !ring) return;
 
       const cloneGroup = clones.group;
       const cloneItems = clones.items;
-      const cloneTargets = clones.targets;
-      if (cloneGroup) cloneGroup.visible = false;
-      cloneItems.forEach((item) => {
-        if (item) {
-          item.position.set(0, 0, 0);
-          item.scale.setScalar(0.001);
-        }
-      });
+      const targets = clones.targets;
+      const ringMaterial = ring.material as THREE.MeshBasicMaterial;
 
-      const master = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: {
-          trigger: document.body,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1,
-        },
-      });
+      timeline.set(mainCan, { visible: true }, 0);
+      if (cloneGroup) timeline.set(cloneGroup, { visible: false }, 0);
 
-      master.addLabel("start", 0);
-
-      master.to(
+      timeline.fromTo(
         mainCan.position,
-        { x: CENTER.x, duration: 2.0, ease: "power2.inOut" },
-        "start",
+        { x: START.x },
+        { x: 0, duration: 2.0, ease: "power2.inOut" },
+        0,
       );
-      master.to(
+      timeline.fromTo(
         mainCan.position,
+        { y: START.y },
         { y: 0.6, duration: 1.3, ease: "power2.out" },
-        "start",
+        0,
       );
-      master.to(
+      timeline.to(
         mainCan.position,
-        { y: CENTER.y, duration: 0.9, ease: "power1.inOut" },
-        "start+=1.3",
+        { y: 0, duration: 0.85, ease: "power1.inOut" },
+        1.3,
       );
-      master.to(
+      timeline.fromTo(
         mainCan.position,
-        { z: CENTER.z, duration: 2.0, ease: "power2.out" },
-        "start",
+        { z: START.z },
+        { z: 0, duration: 2.0, ease: "power2.out" },
+        0,
       );
 
-      master.to(
+      timeline.fromTo(
         mainCan.rotation,
+        { y: -1.6 },
         { y: Math.PI * 2 + 0.08, duration: 2.0, ease: "power2.out" },
-        "start",
+        0,
       );
-      master.to(
+      timeline.fromTo(
         mainCan.rotation,
+        { x: 0.5 },
         { x: 0, duration: 1.8, ease: "power2.out" },
-        "start",
+        0,
       );
-      master.to(
+      timeline.fromTo(
         mainCan.rotation,
+        { z: 0.35 },
         { z: 0, duration: 1.8, ease: "power2.out" },
-        "start",
+        0,
       );
 
-      master.to(
+      timeline.fromTo(
         mainCan.scale,
+        { x: CAN_SCALE * 0.6, y: CAN_SCALE * 0.6, z: CAN_SCALE * 0.6 },
         { x: CAN_SCALE, y: CAN_SCALE, z: CAN_SCALE, duration: 2.0, ease: "power2.out" },
-        "start",
+        0,
       );
 
-      master.addLabel("impact", 2.15);
-
-      master.to(
+      timeline.to(
         mainCan.scale,
-        { x: CAN_SCALE * 1.12, y: CAN_SCALE * 0.9, z: CAN_SCALE * 1.12, duration: 0.15, ease: "power2.out" },
-        "impact",
+        {
+          x: CAN_SCALE * 1.12,
+          y: CAN_SCALE * 0.9,
+          z: CAN_SCALE * 1.12,
+          duration: 0.15,
+          ease: "power2.out",
+        },
+        PHASES.impact,
       );
-      master.to(
+      timeline.to(
         mainCan.scale,
-        { x: CAN_SCALE, y: CAN_SCALE, z: CAN_SCALE, duration: 0.55, ease: "elastic.out(1, 0.5)" },
-        "impact+=0.15",
+        {
+          x: CAN_SCALE,
+          y: CAN_SCALE,
+          z: CAN_SCALE,
+          duration: 0.55,
+          ease: "elastic.out(1, 0.5)",
+        },
+        PHASES.impact + 0.15,
       );
-      master.to(
+      timeline.to(
         mainCan.position,
-        { y: "-=0.12", duration: 0.15, ease: "power2.out" },
-        "impact",
+        { y: -0.12, duration: 0.15, ease: "power2.out" },
+        PHASES.impact,
       );
-      master.to(
+      timeline.to(
         mainCan.position,
         { y: 0, duration: 0.55, ease: "elastic.out(1, 0.5)" },
-        "impact+=0.15",
+        PHASES.impact + 0.15,
       );
 
-      master.addLabel("burst", 2.7);
+      timeline.to(
+        camera.position,
+        {
+          keyframes: [
+            { x: 0.06, y: -0.04, duration: 0.05 },
+            { x: -0.05, y: 0.03, duration: 0.05 },
+            { x: 0.03, y: -0.02, duration: 0.05 },
+            { x: 0, y: 0, duration: 0.05 },
+          ],
+        },
+        PHASES.impact,
+      );
 
-      master.set(cloneGroup, { visible: true }, "burst");
-      master.set(mainCan, { visible: false }, "burst");
-      master.set(mainCan.scale, { x: CAN_SCALE, y: CAN_SCALE, z: CAN_SCALE }, "burst");
+      timeline.fromTo(
+        ring.scale,
+        { x: 0.2, y: 0.2, z: 0.2 },
+        { x: 6, y: 6, z: 6, duration: 0.8, ease: "power3.out" },
+        PHASES.impact,
+      );
+      timeline.to(
+        ringMaterial,
+        {
+          keyframes: [
+            { opacity: 0.5, duration: 0.08 },
+            { opacity: 0, duration: 0.72, ease: "power2.out" },
+          ],
+        },
+        PHASES.impact,
+      );
+
+      if (cloneGroup) timeline.set(cloneGroup, { visible: true }, PHASES.burst);
+      timeline.set(mainCan, { visible: false }, PHASES.burst);
 
       cloneItems.forEach((item, i) => {
         if (!item) return;
-        const target = cloneTargets[i];
-        const delay = (i % 4) * 0.05;
+        const target = targets[i];
+        const delay = i * 0.05;
 
-        master.fromTo(
+        timeline.set(
           item.scale,
-          { x: 0.001, y: 0.001, z: 0.001 },
-          { x: CLONE_SCALE, y: CLONE_SCALE, z: CLONE_SCALE, duration: 0.7, ease: "back.out(1.3)" },
-          `burst+=${delay}`,
+          { x: CLONE_SCALE, y: CLONE_SCALE, z: CLONE_SCALE },
+          PHASES.burst,
         );
-        master.fromTo(
+        timeline.fromTo(
           item.position,
           { x: 0, y: 0, z: 0 },
           {
@@ -151,9 +180,9 @@ export default function Scene() {
             duration: 1.8,
             ease: "power2.out",
           },
-          `burst+=${delay}`,
+          PHASES.burst + delay,
         );
-        master.fromTo(
+        timeline.fromTo(
           item.rotation,
           { x: -Math.PI / 2, y: 0, z: 0 },
           {
@@ -163,24 +192,60 @@ export default function Scene() {
             duration: 2.0,
             ease: "power1.out",
           },
-          `burst+=${delay}`,
+          PHASES.burst + delay,
+        );
+        timeline.to(
+          item.scale,
+          {
+            x: CLONE_SCALE * 1.06,
+            y: CLONE_SCALE * 1.06,
+            z: CLONE_SCALE * 1.06,
+            duration: 0.15,
+            ease: "power2.in",
+          },
+          PHASES.burst + delay + 1.5,
+        );
+        timeline.to(
+          item.scale,
+          {
+            x: CLONE_SCALE,
+            y: CLONE_SCALE,
+            z: CLONE_SCALE,
+            duration: 0.4,
+            ease: "elastic.out(1, 0.5)",
+          },
+          PHASES.burst + delay + 1.65,
         );
       });
 
-      master.addLabel("settle", 5.0);
+      ScrollTrigger.refresh();
     },
-    { dependencies: [] },
+    { dependencies: [timeline] },
   );
+
+  useFrame((state) => {
+    const clones = clonesRef.current;
+    if (!timeline || !clones) return;
+    const t = timeline.time();
+    clones.items.forEach((item, i) => {
+      if (!item) return;
+      const release = PHASES.burst + i * 0.05 + 1.8;
+      if (t > release) {
+        const target = clones.targets[i];
+        item.position.y =
+          target.position.y +
+          Math.sin(state.clock.elapsedTime * (0.8 + i * 0.13) + i * 1.7) * 0.05;
+      }
+    });
+  });
 
   return (
     <>
       <Backdrop />
-      <RingAccent />
       <Lights />
-
       <MainCan ref={mainCanRef} />
       <ClonedCans ref={clonesRef} />
-
+      <ShockRing ref={ringRef} />
       <Effects />
     </>
   );
