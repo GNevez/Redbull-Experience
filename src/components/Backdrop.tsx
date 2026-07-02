@@ -11,6 +11,7 @@ function GradientDome() {
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
       depthWrite: false,
+      depthTest: false,
       side: THREE.BackSide,
       uniforms: {
         centerColor: { value: CENTER_COLOR.clone() },

@@ -5,7 +5,6 @@ import { Instances, Instance } from "@react-three/drei";
 import * as THREE from "three";
 import { useCanParts } from "@/hooks/useCanModel";
 
-export const CLONE_COUNT = 8;
 export const CLONE_SCALE = 9;
 
 export interface CloneTarget {
@@ -53,6 +52,8 @@ const TARGETS: CloneTarget[] = [
     rotation: new THREE.Euler(-1.4, -2.7, -0.05),
   },
 ];
+
+export const CLONE_COUNT = TARGETS.length;
 
 const ClonedCans = forwardRef<ClonedCansHandle>(function ClonedCans(
   _props,
