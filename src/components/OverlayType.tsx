@@ -3,10 +3,11 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { PHASES } from "@/lib/phases";
 
-gsap.registerPlugin(useGSAP, SplitText);
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 interface OverlayTypeProps {
   timeline: gsap.core.Timeline | null;
@@ -47,6 +48,8 @@ export default function OverlayType({ timeline }: OverlayTypeProps) {
         { yPercent: 0, duration: 0.6, stagger: 0.035, ease: "power4.out" },
         PHASES.reveal + 0.4,
       );
+
+      ScrollTrigger.refresh();
 
       return () => {
         split.revert();
