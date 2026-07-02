@@ -62,9 +62,9 @@ function ReflectiveFloor() {
         resolution={1024}
         blur={[400, 100]}
         mixBlur={0.9}
-        mixStrength={2}
-        roughness={0.7}
-        mirror={0.5}
+        mixStrength={3.5}
+        roughness={0.55}
+        mirror={0.7}
         depthScale={0.6}
         minDepthThreshold={0.4}
         maxDepthThreshold={1.2}
