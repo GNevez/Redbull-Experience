@@ -6,12 +6,12 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { BURST } from "@/lib/phases";
-import type { HeroTimelines } from "./HeroSection";
+import type { ExperienceTimelines } from "./Experience";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 interface OverlayTypeProps {
-  timelines: HeroTimelines | null;
+  timelines: ExperienceTimelines | null;
 }
 
 export default function OverlayType({ timelines }: OverlayTypeProps) {
@@ -27,7 +27,7 @@ export default function OverlayType({ timelines }: OverlayTypeProps) {
       const hint = hintRef.current;
       if (!timelines || !logo || !lettering || !hint) return;
 
-      const { scrub, burst } = timelines;
+      const { heroScrub: scrub, burst } = timelines;
 
       const split = SplitText.create(lettering, {
         type: "chars",

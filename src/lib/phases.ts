@@ -1,4 +1,4 @@
-export const SCRUB_DURATION = 4;
+export const HERO_SCRUB_DURATION = 4;
 export const BURST_TRIGGER = 0.62;
 
 export const BURST = {
@@ -8,3 +8,20 @@ export const BURST = {
   lettering: 1.35,
   end: 3.2,
 } as const;
+
+export const FALL_DURATION = 4;
+export const FALL = {
+  drop: 0,
+  park: 0.3,
+  text: 2.6,
+} as const;
+
+export const ROLL_DURATION = 4;
+export const ROLL = {
+  stage: 0,
+  travel: 0.5,
+  settle: 3.1,
+  lines: [1.0, 1.9, 2.8],
+} as const;
+
+export const HERO_CLONE_INDEX = 1;

@@ -11,25 +11,24 @@ import Backdrop from "./Backdrop";
 import Lights from "./Lights";
 import MainCan from "./MainCan";
 import ShockRing from "./ShockRing";
-import FloorPool from "./FloorPool";
 import ClonedCans, { ClonedCansHandle, CLONE_SCALE } from "./ClonedCans";
 import Effects from "./Effects";
-import { BURST } from "@/lib/phases";
-import type { HeroTimelines } from "./HeroSection";
+import { BURST, FALL, ROLL, HERO_CLONE_INDEX } from "@/lib/phases";
+import type { ExperienceTimelines } from "./Experience";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const CAN_SCALE = 9;
+const FALL_OFFSETS = [0, 0, 0.15, 0.3, 0.05, 0.25, 0.1, 0.2];
 
 interface SceneProps {
-  timelines: HeroTimelines | null;
+  timelines: ExperienceTimelines | null;
 }
 
 export default function Scene({ timelines }: SceneProps) {
   const mainCanRef = useRef<THREE.Group>(null);
   const clonesRef = useRef<ClonedCansHandle>(null);
   const ringRef = useRef<THREE.Mesh>(null);
-  const poolRef = useRef<THREE.Mesh>(null);
   const keyLightRef = useRef<THREE.DirectionalLight>(null);
   const spotRef = useRef<THREE.SpotLight>(null);
   const flashRef = useRef<THREE.PointLight>(null);
@@ -40,109 +39,94 @@ export default function Scene({ timelines }: SceneProps) {
       const mainCan = mainCanRef.current;
       const clones = clonesRef.current;
       const ring = ringRef.current;
-      const pool = poolRef.current;
       const keyLight = keyLightRef.current;
       const spot = spotRef.current;
       const flash = flashRef.current;
-      if (
-        !timelines ||
-        !mainCan ||
-        !clones ||
-        !ring ||
-        !pool ||
-        !keyLight ||
-        !spot ||
-        !flash
-      )
+      if (!timelines || !mainCan || !clones || !ring || !keyLight || !spot || !flash)
         return;
 
-      const { scrub, burst } = timelines;
+      const { heroScrub, burst, fall, roll } = timelines;
       const cloneGroup = clones.group;
       const cloneItems = clones.items;
       const targets = clones.targets;
       const ringMaterial = ring.material as THREE.MeshBasicMaterial;
-      const poolStrength = (pool.material as THREE.ShaderMaterial).uniforms
-        .strength;
 
-      scrub.set(mainCan, { visible: true }, 0);
-      if (cloneGroup) scrub.set(cloneGroup, { visible: false }, 0);
+      heroScrub.set(mainCan, { visible: true }, 0);
+      if (cloneGroup) heroScrub.set(cloneGroup, { visible: false }, 0);
 
-      scrub.fromTo(
+      heroScrub.fromTo(
         camera.position,
         { z: 7.3 },
         { z: 6, duration: 4, ease: "power1.out" },
         0,
       );
 
-      scrub.fromTo(
+      heroScrub.fromTo(
         mainCan.position,
-        { y: -0.55 },
-        { y: 0.12, duration: 3.4, ease: "power1.inOut" },
-        0.3,
+        { y: 5.2 },
+        { y: 0.12, duration: 2.1, ease: "power1.inOut" },
+        0.2,
       );
-      scrub.fromTo(
+      heroScrub.fromTo(
         mainCan.rotation,
         { y: -3.6 },
-        { y: 0.08, duration: 3.7, ease: "power1.out" },
+        { y: 0.08, duration: 2.3, ease: "power1.out" },
         0,
       );
-      scrub.fromTo(
+      heroScrub.fromTo(
         mainCan.rotation,
-        { x: 0.1 },
-        { x: 0, duration: 3, ease: "power1.out" },
-        0,
+        { x: 0.35 },
+        { x: 0, duration: 2.1, ease: "power1.out" },
+        0.2,
       );
-      scrub.fromTo(
+      heroScrub.fromTo(
         mainCan.rotation,
-        { z: -0.06 },
-        { z: 0, duration: 3, ease: "power1.out" },
-        0,
+        { z: -0.1 },
+        { z: 0, duration: 2.1, ease: "power1.out" },
+        0.2,
       );
-      scrub.fromTo(
+      heroScrub.fromTo(
         mainCan.scale,
         { x: CAN_SCALE * 0.92, y: CAN_SCALE * 0.92, z: CAN_SCALE * 0.92 },
         {
           x: CAN_SCALE,
           y: CAN_SCALE,
           z: CAN_SCALE,
-          duration: 3.7,
+          duration: 2.3,
           ease: "power1.out",
         },
         0,
       );
 
-      scrub.fromTo(
+      heroScrub.fromTo(
         spot,
         { intensity: 0 },
         { intensity: 260, duration: 3, ease: "power2.inOut" },
         0.4,
       );
-      scrub.fromTo(
+      heroScrub.fromTo(
         keyLight,
         { intensity: 0 },
         { intensity: 2.6, duration: 2.6, ease: "power2.inOut" },
         0.9,
       );
-      scrub.fromTo(
-        poolStrength,
-        { value: 0.24 },
-        { value: 1.05, duration: 3, ease: "power2.inOut" },
-        0.5,
-      );
 
-      burst.to(
+      burst.fromTo(
         mainCan.position,
-        { y: -0.16, duration: 0.3, ease: "power2.in" },
+        { y: 0.12 },
+        { y: -0.16, duration: 0.3, ease: "power2.in", immediateRender: false },
         0,
       );
-      burst.to(
+      burst.fromTo(
         mainCan.scale,
+        { x: CAN_SCALE, y: CAN_SCALE, z: CAN_SCALE },
         {
           x: CAN_SCALE * 1.03,
           y: CAN_SCALE * 0.94,
           z: CAN_SCALE * 1.03,
           duration: 0.3,
           ease: "power2.in",
+          immediateRender: false,
         },
         0,
       );
@@ -276,6 +260,83 @@ export default function Scene({ timelines }: SceneProps) {
         );
       });
 
+      cloneItems.forEach((item, i) => {
+        if (!item) return;
+        const target = targets[i];
+
+        if (i === HERO_CLONE_INDEX) {
+          fall.to(
+            item.position,
+            { x: 0, y: -0.3, z: 0.2, duration: 2.4, ease: "power2.inOut" },
+            FALL.park,
+          );
+          fall.to(
+            item.rotation,
+            { x: -Math.PI / 2, y: 0, z: 0.06, duration: 2.4, ease: "power2.inOut" },
+            FALL.park,
+          );
+          return;
+        }
+
+        const offset = FALL_OFFSETS[i];
+        fall.to(
+          item.position,
+          {
+            x: target.position.x * 1.15,
+            y: target.position.y - 15,
+            z: target.position.z,
+            duration: 1.7,
+            ease: "power1.in",
+          },
+          FALL.drop + offset,
+        );
+        fall.to(
+          item.rotation,
+          {
+            x: target.rotation.x + 2.2,
+            z: target.rotation.z + 1.6,
+            duration: 1.7,
+            ease: "power1.in",
+          },
+          FALL.drop + offset,
+        );
+      });
+
+      const heroItem = cloneItems[HERO_CLONE_INDEX];
+      if (heroItem) {
+        roll.set(heroItem.rotation, { order: "ZXY" }, 0);
+        roll.to(
+          heroItem.rotation,
+          { z: -0.35, duration: 0.5, ease: "power2.in" },
+          ROLL.stage,
+        );
+        roll.to(
+          heroItem.position,
+          { x: 2.9, duration: 0.5, ease: "power2.in" },
+          ROLL.stage,
+        );
+        roll.to(
+          heroItem.position,
+          { x: -2.4, duration: 2.6, ease: "power1.inOut" },
+          ROLL.travel,
+        );
+        roll.to(
+          heroItem.rotation,
+          { z: Math.PI * 2.2, duration: 2.6, ease: "power1.inOut" },
+          ROLL.travel,
+        );
+        roll.to(
+          heroItem.position,
+          { y: -0.2, duration: 0.55, ease: "power2.out" },
+          ROLL.settle,
+        );
+        roll.to(
+          heroItem.rotation,
+          { z: Math.PI * 2.2 - 0.22, duration: 0.55, ease: "power2.out" },
+          ROLL.settle,
+        );
+      }
+
       ScrollTrigger.refresh();
     },
     { dependencies: [timelines] },
@@ -284,8 +345,8 @@ export default function Scene({ timelines }: SceneProps) {
   useFrame((state) => {
     const clones = clonesRef.current;
     if (!timelines || !clones) return;
-    const { burst } = timelines;
-    if (burst.reversed()) return;
+    const { burst, fall } = timelines;
+    if (burst.reversed() || fall.time() > 0.03) return;
     const t = burst.time();
     clones.items.forEach((item, i) => {
       if (!item) return;
@@ -328,8 +389,8 @@ export default function Scene({ timelines }: SceneProps) {
         color="#cfe0ff"
       />
       <Sparkles
-        count={60}
-        scale={[11, 6, 6]}
+        count={80}
+        scale={[14, 9, 8]}
         size={1.4}
         speed={0.25}
         opacity={0.3}
@@ -339,7 +400,6 @@ export default function Scene({ timelines }: SceneProps) {
       <MainCan ref={mainCanRef} />
       <ClonedCans ref={clonesRef} />
       <ShockRing ref={ringRef} />
-      <FloorPool ref={poolRef} />
       <Effects />
     </>
   );
