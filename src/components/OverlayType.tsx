@@ -5,24 +5,29 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import { PHASES } from "@/lib/phases";
+import { BURST } from "@/lib/phases";
+import type { HeroTimelines } from "./HeroSection";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 interface OverlayTypeProps {
-  timeline: gsap.core.Timeline | null;
+  timelines: HeroTimelines | null;
 }
 
-export default function OverlayType({ timeline }: OverlayTypeProps) {
+export default function OverlayType({ timelines }: OverlayTypeProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
   const letteringRef = useRef<HTMLHeadingElement>(null);
+  const hintRef = useRef<HTMLParagraphElement>(null);
 
   useGSAP(
     () => {
       const logo = logoRef.current;
       const lettering = letteringRef.current;
-      if (!timeline || !logo || !lettering) return;
+      const hint = hintRef.current;
+      if (!timelines || !logo || !lettering || !hint) return;
+
+      const { scrub, burst } = timelines;
 
       const split = SplitText.create(lettering, {
         type: "chars",
@@ -30,23 +35,30 @@ export default function OverlayType({ timeline }: OverlayTypeProps) {
       });
       gsap.set(lettering, { visibility: "visible" });
 
-      timeline.fromTo(
+      scrub.fromTo(
+        hint,
+        { opacity: 1 },
+        { opacity: 0, duration: 0.5, ease: "none" },
+        0.25,
+      );
+
+      burst.fromTo(
         logo,
-        { opacity: 0, scale: 0.85, filter: "blur(12px)" },
+        { opacity: 0, scale: 0.85, filter: "blur(14px)" },
         {
           opacity: 1,
           scale: 1,
           filter: "blur(0px)",
-          duration: 1.2,
+          duration: 0.9,
           ease: "power3.out",
         },
-        PHASES.reveal,
+        BURST.logo,
       );
-      timeline.fromTo(
+      burst.fromTo(
         split.chars,
         { yPercent: 120 },
-        { yPercent: 0, duration: 0.6, stagger: 0.035, ease: "power4.out" },
-        PHASES.reveal + 0.4,
+        { yPercent: 0, duration: 0.55, stagger: 0.03, ease: "power4.out" },
+        BURST.lettering,
       );
 
       ScrollTrigger.refresh();
@@ -55,7 +67,7 @@ export default function OverlayType({ timeline }: OverlayTypeProps) {
         split.revert();
       };
     },
-    { scope: rootRef, dependencies: [timeline] },
+    { scope: rootRef, dependencies: [timelines] },
   );
 
   return (
@@ -102,6 +114,22 @@ export default function OverlayType({ timeline }: OverlayTypeProps) {
       >
         Red Bull te dá asas.
       </h1>
+      <p
+        ref={hintRef}
+        style={{
+          position: "absolute",
+          bottom: "3rem",
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          color: "#8fa3c4",
+          letterSpacing: "0.45em",
+          textTransform: "uppercase",
+          fontSize: "0.8rem",
+        }}
+      >
+        role para revelar
+      </p>
     </div>
   );
 }

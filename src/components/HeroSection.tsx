@@ -8,28 +8,46 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import Scene from "./Scene";
 import OverlayType from "./OverlayType";
-import { PHASES } from "@/lib/phases";
+import { SCRUB_DURATION, BURST_TRIGGER, BURST } from "@/lib/phases";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+export interface HeroTimelines {
+  scrub: gsap.core.Timeline;
+  burst: gsap.core.Timeline;
+}
+
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [timeline, setTimeline] = useState<gsap.core.Timeline | null>(null);
+  const [timelines, setTimelines] = useState<HeroTimelines | null>(null);
 
   useGSAP(
     () => {
-      const tl = gsap.timeline({
+      const burst = gsap.timeline({ paused: true });
+      burst.set({}, {}, BURST.end);
+
+      const scrub = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
-          end: "+=500%",
+          end: "+=350%",
           pin: true,
           scrub: 1,
+          onUpdate: (self) => {
+            if (self.progress >= BURST_TRIGGER) {
+              if (burst.reversed() || (burst.paused() && burst.progress() < 1)) {
+                burst.timeScale(1).play();
+              }
+            } else if (!burst.reversed() && burst.time() > 0) {
+              burst.timeScale(1.6).reverse();
+            }
+          },
         },
       });
-      tl.set({}, {}, PHASES.end);
-      setTimeline(tl);
+      scrub.set({}, {}, SCRUB_DURATION);
+
+      setTimelines({ scrub, burst });
     },
     { scope: sectionRef },
   );
@@ -49,10 +67,10 @@ export default function HeroSection() {
         }}
       >
         <Suspense fallback={null}>
-          <Scene timeline={timeline} />
+          <Scene timelines={timelines} />
         </Suspense>
       </Canvas>
-      <OverlayType timeline={timeline} />
+      <OverlayType timelines={timelines} />
     </section>
   );
 }

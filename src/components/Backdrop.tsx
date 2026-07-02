@@ -58,7 +58,7 @@ function ReflectiveFloor() {
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3.4, 0]}>
       <planeGeometry args={[40, 40]} />
       <MeshReflectorMaterial
-        color="#080c14"
+        color="#0a101c"
         resolution={1024}
         blur={[400, 100]}
         mixBlur={0.9}

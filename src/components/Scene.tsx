@@ -6,27 +6,33 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
+import { Sparkles } from "@react-three/drei";
 import Backdrop from "./Backdrop";
 import Lights from "./Lights";
 import MainCan from "./MainCan";
 import ShockRing from "./ShockRing";
+import FloorPool from "./FloorPool";
 import ClonedCans, { ClonedCansHandle, CLONE_SCALE } from "./ClonedCans";
 import Effects from "./Effects";
-import { PHASES } from "@/lib/phases";
+import { BURST } from "@/lib/phases";
+import type { HeroTimelines } from "./HeroSection";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const CAN_SCALE = 9;
-const START = { x: -3.2, y: -3.6, z: -6 };
 
 interface SceneProps {
-  timeline: gsap.core.Timeline | null;
+  timelines: HeroTimelines | null;
 }
 
-export default function Scene({ timeline }: SceneProps) {
+export default function Scene({ timelines }: SceneProps) {
   const mainCanRef = useRef<THREE.Group>(null);
   const clonesRef = useRef<ClonedCansHandle>(null);
   const ringRef = useRef<THREE.Mesh>(null);
+  const poolRef = useRef<THREE.Mesh>(null);
+  const keyLightRef = useRef<THREE.DirectionalLight>(null);
+  const spotRef = useRef<THREE.SpotLight>(null);
+  const flashRef = useRef<THREE.PointLight>(null);
   const camera = useThree((state) => state.camera);
 
   useGSAP(
@@ -34,202 +40,256 @@ export default function Scene({ timeline }: SceneProps) {
       const mainCan = mainCanRef.current;
       const clones = clonesRef.current;
       const ring = ringRef.current;
-      if (!timeline || !mainCan || !clones || !ring) return;
+      const pool = poolRef.current;
+      const keyLight = keyLightRef.current;
+      const spot = spotRef.current;
+      const flash = flashRef.current;
+      if (
+        !timelines ||
+        !mainCan ||
+        !clones ||
+        !ring ||
+        !pool ||
+        !keyLight ||
+        !spot ||
+        !flash
+      )
+        return;
 
+      const { scrub, burst } = timelines;
       const cloneGroup = clones.group;
       const cloneItems = clones.items;
       const targets = clones.targets;
       const ringMaterial = ring.material as THREE.MeshBasicMaterial;
+      const poolStrength = (pool.material as THREE.ShaderMaterial).uniforms
+        .strength;
 
-      timeline.set(mainCan, { visible: true }, 0);
-      if (cloneGroup) timeline.set(cloneGroup, { visible: false }, 0);
+      scrub.set(mainCan, { visible: true }, 0);
+      if (cloneGroup) scrub.set(cloneGroup, { visible: false }, 0);
 
-      timeline.fromTo(
-        mainCan.position,
-        { x: START.x },
-        { x: 0, duration: 2.0, ease: "power2.inOut" },
-        0,
-      );
-      timeline.fromTo(
-        mainCan.position,
-        { y: START.y },
-        { y: 0.6, duration: 1.3, ease: "power2.out" },
-        0,
-      );
-      timeline.to(
-        mainCan.position,
-        { y: 0, duration: 0.85, ease: "power1.inOut" },
-        1.3,
-      );
-      timeline.fromTo(
-        mainCan.position,
-        { z: START.z },
-        { z: 0, duration: 2.0, ease: "power2.out" },
+      scrub.fromTo(
+        camera.position,
+        { z: 7.3 },
+        { z: 6, duration: 4, ease: "power1.out" },
         0,
       );
 
-      timeline.fromTo(
+      scrub.fromTo(
+        mainCan.position,
+        { y: -0.55 },
+        { y: 0.12, duration: 3.4, ease: "power1.inOut" },
+        0.3,
+      );
+      scrub.fromTo(
         mainCan.rotation,
-        { y: -1.6 },
-        { y: Math.PI * 2 + 0.08, duration: 2.0, ease: "power2.out" },
+        { y: -3.6 },
+        { y: 0.08, duration: 3.7, ease: "power1.out" },
         0,
       );
-      timeline.fromTo(
+      scrub.fromTo(
         mainCan.rotation,
-        { x: 0.5 },
-        { x: 0, duration: 1.8, ease: "power2.out" },
+        { x: 0.1 },
+        { x: 0, duration: 3, ease: "power1.out" },
         0,
       );
-      timeline.fromTo(
+      scrub.fromTo(
         mainCan.rotation,
-        { z: 0.35 },
-        { z: 0, duration: 1.8, ease: "power2.out" },
+        { z: -0.06 },
+        { z: 0, duration: 3, ease: "power1.out" },
         0,
       );
-
-      timeline.fromTo(
+      scrub.fromTo(
         mainCan.scale,
-        { x: CAN_SCALE * 0.6, y: CAN_SCALE * 0.6, z: CAN_SCALE * 0.6 },
-        { x: CAN_SCALE, y: CAN_SCALE, z: CAN_SCALE, duration: 2.0, ease: "power2.out" },
+        { x: CAN_SCALE * 0.92, y: CAN_SCALE * 0.92, z: CAN_SCALE * 0.92 },
+        {
+          x: CAN_SCALE,
+          y: CAN_SCALE,
+          z: CAN_SCALE,
+          duration: 3.7,
+          ease: "power1.out",
+        },
         0,
       );
 
-      timeline.to(
+      scrub.fromTo(
+        spot,
+        { intensity: 0 },
+        { intensity: 260, duration: 3, ease: "power2.inOut" },
+        0.4,
+      );
+      scrub.fromTo(
+        keyLight,
+        { intensity: 0 },
+        { intensity: 2.6, duration: 2.6, ease: "power2.inOut" },
+        0.9,
+      );
+      scrub.fromTo(
+        poolStrength,
+        { value: 0 },
+        { value: 0.9, duration: 3, ease: "power2.inOut" },
+        0.5,
+      );
+
+      burst.to(
+        mainCan.position,
+        { y: -0.16, duration: 0.3, ease: "power2.in" },
+        0,
+      );
+      burst.to(
         mainCan.scale,
         {
-          x: CAN_SCALE * 1.12,
-          y: CAN_SCALE * 0.9,
-          z: CAN_SCALE * 1.12,
-          duration: 0.15,
+          x: CAN_SCALE * 1.03,
+          y: CAN_SCALE * 0.94,
+          z: CAN_SCALE * 1.03,
+          duration: 0.3,
+          ease: "power2.in",
+        },
+        0,
+      );
+
+      burst.to(
+        mainCan.position,
+        { y: 0.05, duration: 0.12, ease: "power3.out" },
+        BURST.impact,
+      );
+      burst.to(
+        mainCan.scale,
+        {
+          x: CAN_SCALE * 1.16,
+          y: CAN_SCALE * 0.84,
+          z: CAN_SCALE * 1.16,
+          duration: 0.11,
           ease: "power2.out",
         },
-        PHASES.impact,
+        BURST.impact,
       );
-      timeline.to(
+      burst.to(
         mainCan.scale,
         {
           x: CAN_SCALE,
           y: CAN_SCALE,
           z: CAN_SCALE,
-          duration: 0.55,
-          ease: "elastic.out(1, 0.5)",
+          duration: 0.5,
+          ease: "elastic.out(1, 0.55)",
         },
-        PHASES.impact + 0.15,
-      );
-      timeline.to(
-        mainCan.position,
-        { y: -0.12, duration: 0.15, ease: "power2.out" },
-        PHASES.impact,
-      );
-      timeline.to(
-        mainCan.position,
-        { y: 0, duration: 0.55, ease: "elastic.out(1, 0.5)" },
-        PHASES.impact + 0.15,
+        BURST.impact + 0.11,
       );
 
-      timeline.to(
+      burst.to(
         camera.position,
         {
           keyframes: [
-            { x: 0.06, y: -0.04, duration: 0.05 },
-            { x: -0.05, y: 0.03, duration: 0.05 },
-            { x: 0.03, y: -0.02, duration: 0.05 },
+            { x: 0.07, y: -0.05, duration: 0.05 },
+            { x: -0.06, y: 0.04, duration: 0.05 },
+            { x: 0.035, y: -0.02, duration: 0.05 },
             { x: 0, y: 0, duration: 0.05 },
           ],
         },
-        PHASES.impact,
+        BURST.impact,
       );
 
-      timeline.fromTo(
+      burst.fromTo(
         ring.scale,
         { x: 0.2, y: 0.2, z: 0.2 },
-        { x: 6, y: 6, z: 6, duration: 0.8, ease: "power3.out" },
-        PHASES.impact,
+        { x: 7, y: 7, z: 7, duration: 0.9, ease: "expo.out" },
+        BURST.impact,
       );
-      timeline.to(
+      burst.to(
         ringMaterial,
         {
           keyframes: [
-            { opacity: 0.5, duration: 0.08 },
-            { opacity: 0, duration: 0.72, ease: "power2.out" },
+            { opacity: 0.55, duration: 0.08 },
+            { opacity: 0, duration: 0.82, ease: "power2.out" },
           ],
         },
-        PHASES.impact,
+        BURST.impact,
+      );
+      burst.to(
+        flash,
+        {
+          keyframes: [
+            { intensity: 90, duration: 0.07, ease: "power1.in" },
+            { intensity: 0, duration: 0.45, ease: "power2.out" },
+          ],
+        },
+        BURST.impact,
       );
 
-      if (cloneGroup) timeline.set(cloneGroup, { visible: true }, PHASES.burst);
-      timeline.set(mainCan, { visible: false }, PHASES.burst);
+      if (cloneGroup) burst.set(cloneGroup, { visible: true }, BURST.swap);
+      burst.set(mainCan, { visible: false }, BURST.swap);
 
       cloneItems.forEach((item, i) => {
         if (!item) return;
         const target = targets[i];
-        const delay = i * 0.05;
+        const delay = i * 0.04;
 
-        timeline.set(
+        burst.set(
           item.scale,
           { x: CLONE_SCALE, y: CLONE_SCALE, z: CLONE_SCALE },
-          PHASES.burst,
+          BURST.swap,
         );
-        timeline.fromTo(
+        burst.fromTo(
           item.position,
           { x: 0, y: 0, z: 0 },
           {
             x: target.position.x,
             y: target.position.y,
             z: target.position.z,
-            duration: 1.8,
-            ease: "power2.out",
+            duration: 1.15,
+            ease: "expo.out",
           },
-          PHASES.burst + delay,
+          BURST.swap + delay,
         );
-        timeline.fromTo(
+        burst.fromTo(
           item.rotation,
           { x: -Math.PI / 2, y: 0, z: 0 },
           {
             x: target.rotation.x,
             y: target.rotation.y,
             z: target.rotation.z,
-            duration: 2.0,
-            ease: "power1.out",
+            duration: 1.6,
+            ease: "power2.out",
           },
-          PHASES.burst + delay,
+          BURST.swap + delay,
         );
-        timeline.to(
+        burst.to(
           item.scale,
           {
-            x: CLONE_SCALE * 1.06,
-            y: CLONE_SCALE * 1.06,
-            z: CLONE_SCALE * 1.06,
-            duration: 0.15,
+            x: CLONE_SCALE * 1.05,
+            y: CLONE_SCALE * 1.05,
+            z: CLONE_SCALE * 1.05,
+            duration: 0.12,
             ease: "power2.in",
           },
-          PHASES.burst + delay + 1.5,
+          BURST.swap + delay + 1.0,
         );
-        timeline.to(
+        burst.to(
           item.scale,
           {
             x: CLONE_SCALE,
             y: CLONE_SCALE,
             z: CLONE_SCALE,
-            duration: 0.4,
+            duration: 0.45,
             ease: "elastic.out(1, 0.5)",
           },
-          PHASES.burst + delay + 1.65,
+          BURST.swap + delay + 1.12,
         );
       });
 
       ScrollTrigger.refresh();
     },
-    { dependencies: [timeline] },
+    { dependencies: [timelines] },
   );
 
   useFrame((state) => {
     const clones = clonesRef.current;
-    if (!timeline || !clones) return;
-    const t = timeline.time();
+    if (!timelines || !clones) return;
+    const { burst } = timelines;
+    if (burst.reversed()) return;
+    const t = burst.time();
     clones.items.forEach((item, i) => {
       if (!item) return;
-      const release = PHASES.burst + i * 0.05 + 1.8;
+      const release = BURST.swap + i * 0.04 + 1.15;
       if (t > release) {
         const target = clones.targets[i];
         item.position.y =
@@ -243,9 +303,43 @@ export default function Scene({ timeline }: SceneProps) {
     <>
       <Backdrop />
       <Lights />
+      <directionalLight
+        ref={keyLightRef}
+        position={[3, 5, 7]}
+        intensity={0}
+        color="#f5ecdc"
+      />
+      <spotLight
+        ref={spotRef}
+        position={[0, 9, 2.5]}
+        angle={0.45}
+        penumbra={0.9}
+        intensity={0}
+        distance={30}
+        decay={1.2}
+        color="#dfe8ff"
+      />
+      <pointLight
+        ref={flashRef}
+        position={[0, 0.6, 2.2]}
+        intensity={0}
+        distance={12}
+        decay={2}
+        color="#cfe0ff"
+      />
+      <Sparkles
+        count={60}
+        scale={[11, 6, 6]}
+        size={1.4}
+        speed={0.25}
+        opacity={0.3}
+        color="#9db8e8"
+        position={[0, 0.4, -1]}
+      />
       <MainCan ref={mainCanRef} />
       <ClonedCans ref={clonesRef} />
       <ShockRing ref={ringRef} />
+      <FloorPool ref={poolRef} />
       <Effects />
     </>
   );

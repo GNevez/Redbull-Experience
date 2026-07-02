@@ -5,9 +5,7 @@ import { Environment, Lightformer } from "@react-three/drei";
 export default function Lights() {
   return (
     <>
-      <ambientLight intensity={0.35} color="#dfe8ff" />
-
-      <directionalLight position={[3, 5, 7]} intensity={2.0} color="#f5ecdc" />
+      <ambientLight intensity={0.18} color="#dfe8ff" />
 
       <Environment resolution={256} background={false}>
         <Lightformer
