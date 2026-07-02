@@ -3,7 +3,7 @@
 import { forwardRef, useMemo } from "react";
 import * as THREE from "three";
 
-const POOL_COLOR = new THREE.Color("#33568c");
+const POOL_COLOR = new THREE.Color("#4b86d4");
 
 const FloorPool = forwardRef<THREE.Mesh>(function FloorPool(_props, ref) {
   const material = useMemo(() => {
@@ -13,7 +13,7 @@ const FloorPool = forwardRef<THREE.Mesh>(function FloorPool(_props, ref) {
       blending: THREE.AdditiveBlending,
       uniforms: {
         poolColor: { value: POOL_COLOR.clone() },
-        strength: { value: 0 },
+        strength: { value: 0.24 },
       },
       vertexShader: /* glsl */ `
         varying vec2 vUv;
@@ -27,9 +27,13 @@ const FloorPool = forwardRef<THREE.Mesh>(function FloorPool(_props, ref) {
         uniform float strength;
         varying vec2 vUv;
         void main() {
-          float d = distance(vUv, vec2(0.5));
-          float falloff = pow(clamp(1.0 - d * 2.0, 0.0, 1.0), 2.0);
-          gl_FragColor = vec4(poolColor, falloff * strength);
+          vec2 p = (vUv - 0.5) * vec2(1.25, 0.86);
+          float d = length(p);
+          float core = exp(-d * d * 4.2);
+          float shelf = pow(clamp(1.0 - d * 1.5, 0.0, 1.0), 2.0);
+          float contact = exp(-d * d * 18.0);
+          float alpha = (core * 0.45 + shelf * 0.32 + contact * 0.2) * strength;
+          gl_FragColor = vec4(poolColor, alpha);
         }
       `,
     });
@@ -42,7 +46,7 @@ const FloorPool = forwardRef<THREE.Mesh>(function FloorPool(_props, ref) {
       position={[0, -3.39, 0]}
       rotation={[-Math.PI / 2, 0, 0]}
     >
-      <circleGeometry args={[8, 64]} />
+      <circleGeometry args={[9.5, 96]} />
     </mesh>
   );
 });

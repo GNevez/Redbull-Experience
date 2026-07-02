@@ -125,8 +125,8 @@ export default function Scene({ timelines }: SceneProps) {
       );
       scrub.fromTo(
         poolStrength,
-        { value: 0 },
-        { value: 0.9, duration: 3, ease: "power2.inOut" },
+        { value: 0.24 },
+        { value: 1.05, duration: 3, ease: "power2.inOut" },
         0.5,
       );
 

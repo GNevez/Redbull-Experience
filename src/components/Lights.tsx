@@ -5,7 +5,8 @@ import { Environment, Lightformer } from "@react-three/drei";
 export default function Lights() {
   return (
     <>
-      <ambientLight intensity={0.18} color="#dfe8ff" />
+      <ambientLight intensity={0.24} color="#dfe8ff" />
+      <hemisphereLight args={["#7faee7", "#14233a", 0.32]} />
 
       <Environment resolution={256} background={false}>
         <Lightformer
