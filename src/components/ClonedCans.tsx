@@ -1,11 +1,11 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { Instances, Instance } from "@react-three/drei";
 import * as THREE from "three";
 import { useCanParts } from "@/hooks/useCanModel";
 
-const CLONE_COUNT = 8;
+export const CLONE_COUNT = 8;
 export const CLONE_SCALE = 9;
 
 export interface CloneTarget {
@@ -19,39 +19,40 @@ export interface ClonedCansHandle {
   targets: CloneTarget[];
 }
 
-const SCATTER: {
-  x: number;
-  y: number;
-  z: number;
-}[] = [
-  { x: -3.0, y: 0.6, z: 1.4 },
-  { x: 3.1, y: -0.2, z: 1.2 },
-  { x: -3.4, y: -1.0, z: -0.8 },
-  { x: 3.5, y: 1.1, z: -0.6 },
-  { x: -2.6, y: 1.6, z: -2.6 },
-  { x: 2.7, y: -1.6, z: -2.4 },
-  { x: -3.8, y: -0.2, z: -3.6 },
-  { x: 3.9, y: 0.3, z: -3.8 },
+const TARGETS: CloneTarget[] = [
+  {
+    position: new THREE.Vector3(-3.0, 0.55, 1.4),
+    rotation: new THREE.Euler(-1.45, 0.5, -0.2),
+  },
+  {
+    position: new THREE.Vector3(3.0, -0.25, 1.2),
+    rotation: new THREE.Euler(-1.7, -0.6, 0.25),
+  },
+  {
+    position: new THREE.Vector3(-3.5, -1.0, -0.8),
+    rotation: new THREE.Euler(-1.35, 1.1, 0.1),
+  },
+  {
+    position: new THREE.Vector3(3.5, 1.05, -0.6),
+    rotation: new THREE.Euler(-1.8, -1.2, -0.15),
+  },
+  {
+    position: new THREE.Vector3(-2.7, 1.55, -2.6),
+    rotation: new THREE.Euler(-1.55, 1.9, 0.3),
+  },
+  {
+    position: new THREE.Vector3(2.7, -1.55, -2.4),
+    rotation: new THREE.Euler(-1.5, -2.0, -0.3),
+  },
+  {
+    position: new THREE.Vector3(-3.9, -0.15, -3.6),
+    rotation: new THREE.Euler(-1.65, 2.6, 0.05),
+  },
+  {
+    position: new THREE.Vector3(3.9, 0.3, -3.8),
+    rotation: new THREE.Euler(-1.4, -2.7, -0.05),
+  },
 ];
-
-function computeTargets(count: number): CloneTarget[] {
-  const targets: CloneTarget[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const s = SCATTER[i % SCATTER.length];
-
-    targets.push({
-      position: new THREE.Vector3(s.x, s.y, s.z),
-      rotation: new THREE.Euler(
-        -Math.PI / 2 + (Math.random() - 0.5) * 0.5,
-        (Math.random() - 0.5) * Math.PI * 1.4,
-        (Math.random() - 0.5) * 0.5,
-      ),
-    });
-  }
-
-  return targets;
-}
 
 const ClonedCans = forwardRef<ClonedCansHandle>(function ClonedCans(
   _props,
@@ -60,7 +61,6 @@ const ClonedCans = forwardRef<ClonedCansHandle>(function ClonedCans(
   const { geometry, material } = useCanParts();
   const groupRef = useRef<THREE.Group>(null);
   const itemRefs = useRef<(THREE.Object3D | null)[]>([]);
-  const targets = useMemo(() => computeTargets(CLONE_COUNT), []);
 
   useImperativeHandle(ref, () => ({
     get group() {
@@ -69,13 +69,13 @@ const ClonedCans = forwardRef<ClonedCansHandle>(function ClonedCans(
     get items() {
       return itemRefs.current;
     },
-    targets,
+    targets: TARGETS,
   }));
 
   return (
     <group ref={groupRef} visible={false}>
       <Instances geometry={geometry} material={material} limit={CLONE_COUNT}>
-        {Array.from({ length: CLONE_COUNT }).map((_, i) => (
+        {TARGETS.map((_, i) => (
           <Instance
             key={i}
             ref={(el: THREE.Object3D | null) => {
