@@ -3,6 +3,8 @@
 **Data:** 2026-07-01
 **Status:** Aprovado pelo usuário (direção e abordagem)
 
+> **Revisão 2026-07-02 (v2 — intro cinemática):** após feedback do usuário, a coreografia de entrada foi substituída. A lata não entra mais voando (parecia sair do chão); ela começa no centro em silhueta (rims apenas, hint "role para revelar") e o scroll acende o estúdio — spot superior, pool de luz no piso (`FloorPool.tsx`), turntable e dolly-in. Ao cruzar `BURST_TRIGGER` (62% do pin de 350%), a sequência bump→burst→logo→lettering toca **automaticamente em tempo real** num segundo timeline (`burst`, pausado, disparado por `onUpdate`; reverte acelerado ao voltar o scroll) — o usuário não faz mais scrub da explosão. Arquitetura: `HeroSection` cria `{ scrub, burst }` (`HeroTimelines`) e distribui por prop. Constantes em `phases.ts` (`SCRUB_DURATION`, `BURST_TRIGGER`, `BURST`). Sparkles adicionam atmosfera. As seções de coreografia abaixo descrevem a v1 e permanecem como registro histórico.
+
 ## Contexto
 
 Projeto de exposição para a Red Bull: landing page Next.js 14 + React Three Fiber + GSAP ScrollTrigger, inspirada na landing da Spylt (https://github.com/ahmedragab15/spylt-gsap-website). Hoje existe um hero scroll-driven onde uma lata 3D entra, dá um "bump" e se multiplica em 8 clones que se espalham.
