@@ -26,13 +26,27 @@ const SectionRoll = forwardRef<HTMLElement, SectionRollProps>(
       () => {
         const sticky = stickyRef.current;
         if (!timelines || !sticky) return;
+        const eyebrow = sticky.querySelector("[data-eyebrow]");
+        if (eyebrow) {
+          timelines.roll.fromTo(
+            eyebrow,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.6, ease: "power2.out" },
+            0.5,
+          );
+        }
         const lines = sticky.querySelectorAll("[data-line]");
         lines.forEach((line, i) => {
           timelines.roll.fromTo(
             line,
-            { opacity: 0, x: 90 },
-            { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" },
-            ROLL.lines[i],
+            { clipPath: "inset(0% 0% 0% 100%)", opacity: 0.85 },
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              opacity: 1,
+              duration: ROLL.revealDuration,
+              ease: "power1.inOut",
+            },
+            ROLL.reveal + i * ROLL.revealStagger,
           );
         });
       },
@@ -67,11 +81,13 @@ const SectionRoll = forwardRef<HTMLElement, SectionRollProps>(
             }}
           >
             <p
+              data-eyebrow
               style={{
                 fontSize: "0.8rem",
                 letterSpacing: "0.5em",
                 textTransform: "uppercase",
                 color: "#8fa3c4",
+                opacity: 0,
               }}
             >
               Por que Red Bull
@@ -94,7 +110,7 @@ const SectionRoll = forwardRef<HTMLElement, SectionRollProps>(
                     i === LINES.length - 1
                       ? "0 0 42px rgba(226, 27, 77, 0.35)"
                       : "0 0 28px rgba(160, 190, 255, 0.16)",
-                  opacity: 0,
+                  clipPath: "inset(0% 0% 0% 100%)",
                 }}
               >
                 {text}

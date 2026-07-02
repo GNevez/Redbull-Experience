@@ -18,10 +18,11 @@ export const FALL = {
 
 export const ROLL_DURATION = 4;
 export const ROLL = {
-  stage: 0,
-  travel: 0.5,
-  settle: 3.1,
-  lines: [1.0, 1.9, 2.8],
+  travel: 0.4,
+  settle: 3.15,
+  reveal: 0.75,
+  revealStagger: 0.16,
+  revealDuration: 1.3,
 } as const;
 
 export const HERO_CLONE_INDEX = 1;

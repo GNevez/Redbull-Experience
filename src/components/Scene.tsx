@@ -30,6 +30,7 @@ export default function Scene({ timelines }: SceneProps) {
   const clonesRef = useRef<ClonedCansHandle>(null);
   const ringRef = useRef<THREE.Mesh>(null);
   const keyLightRef = useRef<THREE.DirectionalLight>(null);
+  const fillLightRef = useRef<THREE.DirectionalLight>(null);
   const spotRef = useRef<THREE.SpotLight>(null);
   const flashRef = useRef<THREE.PointLight>(null);
   const camera = useThree((state) => state.camera);
@@ -40,9 +41,19 @@ export default function Scene({ timelines }: SceneProps) {
       const clones = clonesRef.current;
       const ring = ringRef.current;
       const keyLight = keyLightRef.current;
+      const fill = fillLightRef.current;
       const spot = spotRef.current;
       const flash = flashRef.current;
-      if (!timelines || !mainCan || !clones || !ring || !keyLight || !spot || !flash)
+      if (
+        !timelines ||
+        !mainCan ||
+        !clones ||
+        !ring ||
+        !keyLight ||
+        !fill ||
+        !spot ||
+        !flash
+      )
         return;
 
       const { heroScrub, burst, fall, roll } = timelines;
@@ -267,12 +278,22 @@ export default function Scene({ timelines }: SceneProps) {
         if (i === HERO_CLONE_INDEX) {
           fall.to(
             item.position,
-            { x: 0, y: -0.3, z: 0.2, duration: 2.4, ease: "power2.inOut" },
+            { y: -1.35, duration: 1.1, ease: "power1.in" },
+            FALL.park,
+          );
+          fall.to(
+            item.position,
+            { y: -0.1, duration: 1.3, ease: "power2.out" },
+            FALL.park + 1.1,
+          );
+          fall.to(
+            item.position,
+            { x: 2.9, z: 0.2, duration: 2.4, ease: "power2.inOut" },
             FALL.park,
           );
           fall.to(
             item.rotation,
-            { x: -Math.PI / 2, y: 0, z: 0.06, duration: 2.4, ease: "power2.inOut" },
+            { x: -Math.PI / 2, y: 0, z: -0.08, duration: 2.4, ease: "power2.inOut" },
             FALL.park,
           );
           return;
@@ -302,37 +323,53 @@ export default function Scene({ timelines }: SceneProps) {
         );
       });
 
+      fall.to(
+        fill,
+        { intensity: 1.3, duration: 1.4, ease: "power2.inOut" },
+        1.2,
+      );
+      fall.to(
+        spot.position,
+        { x: 2.3, duration: 1.6, ease: "power2.inOut" },
+        0.9,
+      );
+      fall.to(
+        spot,
+        { intensity: 330, duration: 1.6, ease: "power2.inOut" },
+        0.9,
+      );
+
       const heroItem = cloneItems[HERO_CLONE_INDEX];
       if (heroItem) {
         roll.set(heroItem.rotation, { order: "ZXY" }, 0);
         roll.to(
           heroItem.rotation,
-          { z: -0.35, duration: 0.5, ease: "power2.in" },
-          ROLL.stage,
+          { z: -0.28, duration: 0.4, ease: "power2.inOut" },
+          0,
         );
         roll.to(
           heroItem.position,
-          { x: 2.9, duration: 0.5, ease: "power2.in" },
-          ROLL.stage,
-        );
-        roll.to(
-          heroItem.position,
-          { x: -2.4, duration: 2.6, ease: "power1.inOut" },
+          { x: -2.4, duration: 2.75, ease: "power1.inOut" },
           ROLL.travel,
         );
         roll.to(
           heroItem.rotation,
-          { z: Math.PI * 2.2, duration: 2.6, ease: "power1.inOut" },
+          { z: Math.PI * 2.2, duration: 2.75, ease: "power1.inOut" },
+          ROLL.travel,
+        );
+        roll.to(
+          spot.position,
+          { x: -1.8, duration: 2.75, ease: "power1.inOut" },
           ROLL.travel,
         );
         roll.to(
           heroItem.position,
-          { y: -0.2, duration: 0.55, ease: "power2.out" },
+          { y: -0.25, duration: 0.5, ease: "power2.out" },
           ROLL.settle,
         );
         roll.to(
           heroItem.rotation,
-          { z: Math.PI * 2.2 - 0.22, duration: 0.55, ease: "power2.out" },
+          { z: Math.PI * 2.2 - 0.2, duration: 0.5, ease: "power2.out" },
           ROLL.settle,
         );
       }
@@ -369,6 +406,12 @@ export default function Scene({ timelines }: SceneProps) {
         position={[3, 5, 7]}
         intensity={0}
         color="#f5ecdc"
+      />
+      <directionalLight
+        ref={fillLightRef}
+        position={[0, 1, 8]}
+        intensity={0}
+        color="#dfe8ff"
       />
       <spotLight
         ref={spotRef}
