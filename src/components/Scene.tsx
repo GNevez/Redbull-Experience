@@ -118,8 +118,14 @@ export default function Scene({ timelines }: SceneProps) {
       heroScrub.fromTo(
         keyLight,
         { intensity: 0 },
-        { intensity: 2.6, duration: 2.6, ease: "power2.inOut" },
+        { intensity: 3.0, duration: 2.6, ease: "power2.inOut" },
         0.9,
+      );
+      heroScrub.fromTo(
+        fill,
+        { intensity: 0 },
+        { intensity: 1.0, duration: 1.2, ease: "power2.inOut" },
+        2.2,
       );
 
       burst.fromTo(
@@ -341,6 +347,16 @@ export default function Scene({ timelines }: SceneProps) {
 
       const heroItem = cloneItems[HERO_CLONE_INDEX];
       if (heroItem) {
+        timelines.radical.to(
+          heroItem.position,
+          { y: -8, duration: 0.9, ease: "power2.in" },
+          0.05,
+        );
+        timelines.radical.set(
+          heroItem.scale,
+          { x: 0.001, y: 0.001, z: 0.001 },
+          0.75,
+        );
         roll.set(heroItem.rotation, { order: "ZXY" }, 0);
         roll.to(
           heroItem.rotation,

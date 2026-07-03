@@ -9,14 +9,17 @@ import * as THREE from "three";
 import Scene from "./Scene";
 import OverlayType from "./OverlayType";
 import LogoBadge from "./LogoBadge";
+import CarOverlay from "./CarOverlay";
 import SectionEnergy from "./SectionEnergy";
 import SectionRoll from "./SectionRoll";
+import SectionRadical from "./SectionRadical";
 import {
   HERO_SCRUB_DURATION,
   BURST_TRIGGER,
   BURST,
   FALL_DURATION,
   ROLL_DURATION,
+  RADICAL_DURATION,
 } from "@/lib/phases";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -26,12 +29,14 @@ export interface ExperienceTimelines {
   burst: gsap.core.Timeline;
   fall: gsap.core.Timeline;
   roll: gsap.core.Timeline;
+  radical: gsap.core.Timeline;
 }
 
 export default function Experience() {
   const heroRef = useRef<HTMLElement>(null);
   const energyRef = useRef<HTMLElement>(null);
   const rollRef = useRef<HTMLElement>(null);
+  const radicalRef = useRef<HTMLElement>(null);
   const [timelines, setTimelines] = useState<ExperienceTimelines | null>(null);
 
   useGSAP(() => {
@@ -91,7 +96,18 @@ export default function Experience() {
     });
     roll.set({}, {}, ROLL_DURATION);
 
-    setTimelines({ heroScrub, burst, fall, roll });
+    const radical = gsap.timeline({
+      defaults: { ease: "none" },
+      scrollTrigger: {
+        trigger: radicalRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1,
+      },
+    });
+    radical.set({}, {}, RADICAL_DURATION);
+
+    setTimelines({ heroScrub, burst, fall, roll, radical });
   });
 
   return (
@@ -125,6 +141,9 @@ export default function Experience() {
 
       <SectionEnergy ref={energyRef} timelines={timelines} />
       <SectionRoll ref={rollRef} timelines={timelines} />
+      <SectionRadical ref={radicalRef} timelines={timelines} />
+
+      <CarOverlay timelines={timelines} />
     </main>
   );
 }

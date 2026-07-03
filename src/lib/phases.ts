@@ -26,3 +26,10 @@ export const ROLL = {
 } as const;
 
 export const HERO_CLONE_INDEX = 1;
+
+export const RADICAL_DURATION = 5;
+export const RADICAL = {
+  sweep: 0.2,
+  sweepDuration: 1.3,
+  content: 2.1,
+} as const;
