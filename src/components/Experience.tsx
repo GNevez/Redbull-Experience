@@ -157,7 +157,15 @@ export default function Experience() {
       <SectionEnergy ref={energyRef} timelines={timelines} />
       <SectionRoll ref={rollRef} timelines={timelines} />
       <SectionRadical ref={radicalRef} timelines={timelines} />
-      <section ref={diveRef} style={{ position: "relative", height: "450vh" }} />
+      <section
+        ref={diveRef}
+        style={{
+          position: "relative",
+          height: "450vh",
+          zIndex: 1,
+          background: "linear-gradient(180deg, #ece1cf 0%, #f4ede0 100%)",
+        }}
+      />
 
       <LiquidOverlay timelines={timelines} />
       <CarOverlay timelines={timelines} />

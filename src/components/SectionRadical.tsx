@@ -57,6 +57,25 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
           );
         });
 
+        const marqueeL = sticky.querySelector("[data-marquee-l]");
+        if (marqueeL) {
+          radical.fromTo(
+            marqueeL,
+            { xPercent: -6 },
+            { xPercent: -26, duration: 5, ease: "none" },
+            0,
+          );
+        }
+        const marqueeR = sticky.querySelector("[data-marquee-r]");
+        if (marqueeR) {
+          radical.fromTo(
+            marqueeR,
+            { xPercent: -26 },
+            { xPercent: -6, duration: 5, ease: "none" },
+            0,
+          );
+        }
+
         const pieces = sticky.querySelectorAll("[data-rad]");
         radical.fromTo(
           pieces,
@@ -126,8 +145,8 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: "1.8rem",
-              padding: "0 8vw",
+              gap: "1.4rem",
+              padding: "0",
               textAlign: "center",
             }}
           >
@@ -143,37 +162,81 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
             >
               Além da lata
             </p>
+
+            <div
+              data-rad
+              data-marquee-l
+              style={{
+                width: "max-content",
+                whiteSpace: "nowrap",
+                fontFamily: "var(--font-display), sans-serif",
+                textTransform: "uppercase",
+                fontSize: "clamp(4rem, 10vw, 9rem)",
+                lineHeight: 1,
+                color: "transparent",
+                WebkitTextStroke: "2px rgba(27, 19, 12, 0.5)",
+                opacity: 0,
+              }}
+            >
+              Radical é o nosso normal — Radical é o nosso normal — Radical é o
+              nosso normal —
+            </div>
+
             <h2
               data-rad
               style={{
                 fontFamily: "var(--font-display), sans-serif",
                 fontWeight: 400,
                 textTransform: "uppercase",
-                fontSize: "clamp(3rem, 8vw, 7.5rem)",
-                lineHeight: 1.0,
+                fontSize: "clamp(3rem, 8.5vw, 8rem)",
+                lineHeight: 1.05,
                 color: "#1b130c",
+                padding: "0 6vw",
                 opacity: 0,
               }}
             >
-              Radical é o<br />
-              nosso normal.
+              Radical é o{" "}
+              <span
+                style={{
+                  display: "inline-block",
+                  background: "#e21b4d",
+                  color: "#fdfaf4",
+                  padding: "0.02em 0.18em 0.06em",
+                  borderRadius: "16px",
+                  transform: "rotate(-2deg)",
+                  boxShadow: "0 18px 40px rgba(226, 27, 77, 0.35)",
+                }}
+              >
+                nosso normal.
+              </span>
             </h2>
+
             <div
               data-rad
+              data-marquee-r
               style={{
-                width: "72px",
-                height: "5px",
-                borderRadius: "999px",
-                background: "#e21b4d",
+                width: "max-content",
+                whiteSpace: "nowrap",
+                fontFamily: "var(--font-display), sans-serif",
+                textTransform: "uppercase",
+                fontSize: "clamp(2rem, 4.6vw, 4rem)",
+                lineHeight: 1.05,
+                color: "transparent",
+                WebkitTextStroke: "1.5px rgba(226, 27, 77, 0.7)",
                 opacity: 0,
               }}
-            />
+            >
+              F1 · Stratos · Cliff Diving · Rampage · Dakar · Surf · Breaking —
+              F1 · Stratos · Cliff Diving · Rampage · Dakar · Surf · Breaking —
+            </div>
+
             <p
               data-rad
               style={{
-                maxWidth: "640px",
+                maxWidth: "620px",
+                padding: "0 6vw",
                 color: "#6b5d4b",
-                fontSize: "clamp(1rem, 1.4vw, 1.2rem)",
+                fontSize: "clamp(0.95rem, 1.3vw, 1.15rem)",
                 lineHeight: 1.7,
                 opacity: 0,
               }}

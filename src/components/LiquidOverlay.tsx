@@ -3,10 +3,11 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
 import { LIQUID } from "@/lib/phases";
 import type { ExperienceTimelines } from "./Experience";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, SplitText);
 
 interface LiquidOverlayProps {
   timelines: ExperienceTimelines | null;
@@ -91,6 +92,40 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
         LIQUID.headline,
       );
 
+      const headline = root.querySelector("[data-liq-headline]");
+      let split: SplitText | null = null;
+      if (headline) {
+        split = SplitText.create(headline, { type: "chars", mask: "chars" });
+        gsap.set(headline, { visibility: "visible" });
+        liquid.fromTo(
+          split.chars,
+          { yPercent: 120 },
+          {
+            yPercent: 0,
+            duration: 0.55,
+            stagger: 0.02,
+            ease: "power4.out",
+          },
+          LIQUID.headline + 0.15,
+        );
+      }
+
+      const echo = root.querySelector("[data-echo]");
+      if (echo) {
+        liquid.fromTo(
+          echo,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.9, ease: "power2.out" },
+          LIQUID.headline - 0.2,
+        );
+        liquid.fromTo(
+          echo,
+          { xPercent: -4 },
+          { xPercent: 3, duration: 3.2, ease: "none" },
+          LIQUID.headline - 0.2,
+        );
+      }
+
       const cards = root.querySelectorAll("[data-liq-card]");
       cards.forEach((el, i) => {
         liquid.fromTo(
@@ -106,6 +141,10 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           LIQUID.cards + i * 0.22,
         );
       });
+
+      return () => {
+        if (split) split.revert();
+      };
     },
     { scope: rootRef, dependencies: [timelines] },
   );
@@ -123,6 +162,33 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           repeat: -1,
         });
       });
+
+      root.querySelectorAll("[data-float]").forEach((el, i) => {
+        gsap.to(el, {
+          y: -12 - (i % 2) * 5,
+          rotation: i % 2 === 0 ? -1.2 : 1.2,
+          duration: 2.4 + i * 0.35,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          delay: i * 0.45,
+        });
+      });
+
+      const sheen = root.querySelector("[data-sheen]");
+      if (sheen) {
+        gsap.fromTo(
+          sheen,
+          { xPercent: -45 },
+          {
+            xPercent: 45,
+            duration: 7,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+          },
+        );
+      }
 
       root.querySelectorAll("[data-bubble]").forEach((el, i) => {
         const cfg = BUBBLES[i];
@@ -232,6 +298,48 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
             <path d={WAVE_PATH} fill="#e2960a" />
           </svg>
         </div>
+
+        <div
+          data-sheen
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(115deg, transparent 34%, rgba(255, 255, 255, 0.16) 50%, transparent 66%)",
+            width: "160%",
+            left: "-30%",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(circle at 50% 38%, transparent 52%, rgba(150, 90, 0, 0.22) 100%)",
+          }}
+        />
+      </div>
+
+      <div
+        data-echo
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          paddingTop: "7vh",
+          fontFamily: "var(--font-display), sans-serif",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+          fontSize: "clamp(8rem, 17vw, 16rem)",
+          lineHeight: 1,
+          color: "transparent",
+          WebkitTextStroke: "2px rgba(18, 35, 63, 0.22)",
+          opacity: 0,
+        }}
+      >
+        Energia
       </div>
 
       <div
@@ -246,19 +354,19 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           padding: "0 5vw",
         }}
       >
-        <div data-liq style={{ textAlign: "center", opacity: 0 }}>
-          <p
-            style={{
-              fontSize: "0.8rem",
-              letterSpacing: "0.5em",
-              textTransform: "uppercase",
-              color: "#8a5a00",
-              marginBottom: "0.9rem",
-            }}
-          >
+        <div style={{ textAlign: "center" }}>
+          <p data-liq style={{
+            fontSize: "0.8rem",
+            letterSpacing: "0.5em",
+            textTransform: "uppercase",
+            color: "#8a5a00",
+            marginBottom: "0.9rem",
+            opacity: 0,
+          }}>
             Mergulhe na energia
           </p>
           <h2
+            data-liq-headline
             style={{
               fontFamily: "var(--font-display), sans-serif",
               fontWeight: 400,
@@ -266,6 +374,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
               fontSize: "clamp(2.4rem, 6vw, 5.4rem)",
               lineHeight: 1.0,
               color: "#12233f",
+              visibility: "hidden",
             }}
           >
             Aventuras movidas
@@ -286,50 +395,74 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
               key={card.caption}
               data-liq-card
               style={{
-                background: "#fdfaf4",
-                borderRadius: "24px",
-                padding: "10px 10px 14px",
-                boxShadow: "0 26px 50px rgba(90, 55, 0, 0.35)",
                 marginTop: card.lift,
                 opacity: 0,
+                pointerEvents: "auto",
               }}
             >
-              <div
-                style={{
-                  width: "min(19vw, 250px)",
-                  aspectRatio: "9 / 13",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                }}
-              >
-                <video
-                  src={card.video}
-                  poster={card.poster}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    display: "block",
+              <div data-float>
+                <div
+                  onMouseEnter={(e) => {
+                    gsap.to(e.currentTarget, {
+                      scale: 1.05,
+                      y: -10,
+                      duration: 0.35,
+                      ease: "power2.out",
+                    });
                   }}
-                />
+                  onMouseLeave={(e) => {
+                    gsap.to(e.currentTarget, {
+                      scale: 1,
+                      y: 0,
+                      duration: 0.45,
+                      ease: "power2.out",
+                    });
+                  }}
+                  style={{
+                    background: "#fdfaf4",
+                    borderRadius: "24px",
+                    padding: "10px 10px 14px",
+                    boxShadow: "0 26px 50px rgba(90, 55, 0, 0.35)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "min(19vw, 250px)",
+                      aspectRatio: "9 / 13",
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <video
+                      src={card.video}
+                      poster={card.poster}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                  <p
+                    style={{
+                      marginTop: "10px",
+                      textAlign: "center",
+                      fontFamily: "var(--font-display), sans-serif",
+                      textTransform: "uppercase",
+                      fontSize: "1rem",
+                      letterSpacing: "0.08em",
+                      color: "#1b130c",
+                    }}
+                  >
+                    {card.caption}
+                  </p>
+                </div>
               </div>
-              <p
-                style={{
-                  marginTop: "10px",
-                  textAlign: "center",
-                  fontFamily: "var(--font-display), sans-serif",
-                  textTransform: "uppercase",
-                  fontSize: "1rem",
-                  letterSpacing: "0.08em",
-                  color: "#1b130c",
-                }}
-              >
-                {card.caption}
-              </p>
             </div>
           ))}
         </div>
