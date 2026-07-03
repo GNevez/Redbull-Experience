@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 780">
+  <defs>
+    <linearGradient id="dunes" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b1c4d"/>
+      <stop offset="0.45" stop-color="#a34a7e"/>
+      <stop offset="1" stop-color="#f0a90e"/>
+    </linearGradient>
+  </defs>
+  <rect width="540" height="780" fill="url(#dunes)"/>
+  <circle cx="270" cy="330" r="96" fill="#ffd75e" opacity="0.95"/>
+  <path d="M0,560 Q160,460 320,560 T540,540 L540,780 L0,780 Z" fill="#c47a08"/>
+  <path d="M0,640 Q200,560 380,650 T540,620 L540,780 L0,780 Z" fill="#8a5203"/>
+  <text x="270" y="716" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="56" fill="#fff3d6" letter-spacing="5">DAKAR</text>
+  <text x="270" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="19" fill="#ffd9a1" letter-spacing="9">RALLY RAID</text>
+</svg>

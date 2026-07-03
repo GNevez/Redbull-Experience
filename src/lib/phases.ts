@@ -33,3 +33,11 @@ export const RADICAL = {
   sweepDuration: 1.3,
   content: 2.1,
 } as const;
+
+export const LIQUID_DURATION = 5;
+export const LIQUID = {
+  flood: 0,
+  floodDuration: 1.5,
+  headline: 1.9,
+  cards: 2.3,
+} as const;

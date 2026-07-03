@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { useGSAP } from "@gsap/react";
@@ -19,6 +19,44 @@ interface CarOverlayProps {
   timelines: ExperienceTimelines | null;
 }
 
+function CarShadow() {
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      uniforms: {
+        strength: { value: 0.4 },
+      },
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform float strength;
+        varying vec2 vUv;
+        void main() {
+          vec2 p = (vUv - 0.5) * vec2(1.0, 2.4);
+          float falloff = exp(-dot(p, p) * 7.0);
+          gl_FragColor = vec4(0.0, 0.0, 0.0, falloff * strength);
+        }
+      `,
+    });
+  }, []);
+
+  return (
+    <mesh
+      material={material}
+      position={[0, -38, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <circleGeometry args={[150, 48]} />
+    </mesh>
+  );
+}
+
 function CarRig({ timelines }: CarOverlayProps) {
   const { scene } = useGLTF(CAR_URL);
   const groupRef = useRef<THREE.Group>(null);
@@ -34,11 +72,34 @@ function CarRig({ timelines }: CarOverlayProps) {
         { x: 11, duration: RADICAL.sweepDuration, ease: "power1.inOut" },
         RADICAL.sweep,
       );
+      timelines.radical.to(
+        group.position,
+        {
+          keyframes: [
+            { y: -0.52, duration: 0.16 },
+            { y: -0.57, duration: 0.14 },
+            { y: -0.53, duration: 0.15 },
+            { y: -0.57, duration: 0.16 },
+            { y: -0.55, duration: 0.14 },
+          ],
+        },
+        RADICAL.sweep + 0.2,
+      );
       timelines.radical.fromTo(
         group.rotation,
         { z: 0.03 },
         { z: -0.03, duration: RADICAL.sweepDuration, ease: "none" },
         RADICAL.sweep,
+      );
+      timelines.radical.to(
+        group.scale,
+        {
+          keyframes: [
+            { x: 0.0215, duration: 0.45, ease: "power1.in" },
+            { x: 0.02, duration: 0.5, ease: "power1.out" },
+          ],
+        },
+        RADICAL.sweep + 0.15,
       );
     },
     { dependencies: [timelines] },
@@ -52,6 +113,7 @@ function CarRig({ timelines }: CarOverlayProps) {
       scale={0.02}
     >
       <primitive object={scene} />
+      <CarShadow />
     </group>
   );
 }

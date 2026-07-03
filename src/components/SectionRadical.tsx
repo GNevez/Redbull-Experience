@@ -12,19 +12,10 @@ interface SectionRadicalProps {
   timelines: ExperienceTimelines | null;
 }
 
-const CARDS = [
-  {
-    caption: "Fórmula 1",
-    video: "/videos/f1.mp4",
-    poster: "/videos/poster-f1.svg",
-    tilt: "-4deg",
-  },
-  {
-    caption: "Cliff Diving",
-    video: "/videos/cliff.mp4",
-    poster: "/videos/poster-cliff.svg",
-    tilt: "3.5deg",
-  },
+const STREAKS = [
+  { top: "34%", width: "26vw", height: "4px", color: "rgba(226, 27, 77, 0.55)", at: 0.0 },
+  { top: "46%", width: "34vw", height: "5px", color: "rgba(255, 255, 255, 0.6)", at: 0.12 },
+  { top: "58%", width: "22vw", height: "3px", color: "rgba(18, 35, 63, 0.5)", at: 0.22 },
 ];
 
 const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
@@ -41,15 +32,30 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
         if (bg) {
           radical.fromTo(
             bg,
-            { clipPath: "inset(0% 100% 0% 0%)" },
+            { clipPath: "polygon(0% 0%, -22% 0%, -8% 100%, 0% 100%)" },
             {
-              clipPath: "inset(0% 0% 0% 0%)",
-              duration: RADICAL.sweepDuration + 0.2,
+              clipPath: "polygon(0% 0%, 106% 0%, 120% 100%, 0% 100%)",
+              duration: RADICAL.sweepDuration,
               ease: "power1.inOut",
             },
-            RADICAL.sweep + 0.05,
+            RADICAL.sweep + 0.04,
           );
         }
+
+        const streaks = sticky.querySelectorAll("[data-streak]");
+        streaks.forEach((el, i) => {
+          radical.fromTo(
+            el,
+            { xPercent: -160, opacity: 0 },
+            {
+              keyframes: [
+                { xPercent: -40, opacity: 0.9, duration: 0.35, ease: "power1.in" },
+                { xPercent: 460, opacity: 0, duration: 0.55, ease: "power2.out" },
+              ],
+            },
+            RADICAL.sweep + STREAKS[i].at,
+          );
+        });
 
         const pieces = sticky.querySelectorAll("[data-rad]");
         radical.fromTo(
@@ -90,9 +96,27 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
               inset: 0,
               background:
                 "linear-gradient(160deg, #f7f2e9 0%, #f1e9db 55%, #ece1cf 100%)",
-              clipPath: "inset(0% 100% 0% 0%)",
+              clipPath: "polygon(0% 0%, -22% 0%, -8% 100%, 0% 100%)",
             }}
           />
+
+          {STREAKS.map((s, i) => (
+            <div
+              key={i}
+              data-streak
+              style={{
+                position: "absolute",
+                top: s.top,
+                left: 0,
+                width: s.width,
+                height: s.height,
+                borderRadius: "999px",
+                background: `linear-gradient(90deg, transparent, ${s.color})`,
+                transform: "skewX(-18deg)",
+                opacity: 0,
+              }}
+            />
+          ))}
 
           <div
             style={{
@@ -102,130 +126,61 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: "3.2rem",
-              padding: "0 6vw",
+              gap: "1.8rem",
+              padding: "0 8vw",
+              textAlign: "center",
             }}
           >
-            <div data-rad style={{ textAlign: "center", opacity: 0 }}>
-              <p
-                style={{
-                  fontSize: "0.8rem",
-                  letterSpacing: "0.5em",
-                  textTransform: "uppercase",
-                  color: "#a8917a",
-                  marginBottom: "1rem",
-                }}
-              >
-                Além da lata
-              </p>
-              <h2
-                style={{
-                  fontFamily: "var(--font-display), sans-serif",
-                  fontWeight: 400,
-                  textTransform: "uppercase",
-                  fontSize: "clamp(2.4rem, 6vw, 5.2rem)",
-                  lineHeight: 1.02,
-                  color: "#1b130c",
-                }}
-              >
-                Radical é o nosso normal.
-              </h2>
-              <p
-                style={{
-                  maxWidth: "640px",
-                  margin: "1.2rem auto 0",
-                  color: "#6b5d4b",
-                  fontSize: "clamp(1rem, 1.4vw, 1.15rem)",
-                  lineHeight: 1.7,
-                }}
-              >
-                Do salto da estratosfera ao pódio da Fórmula 1 — a Red Bull
-                vive onde a adrenalina mora.
-              </p>
-            </div>
-
-            <div
+            <p
+              data-rad
               style={{
-                display: "flex",
-                gap: "3.4rem",
-                alignItems: "center",
-                justifyContent: "center",
-                flexWrap: "wrap",
+                fontSize: "0.8rem",
+                letterSpacing: "0.5em",
+                textTransform: "uppercase",
+                color: "#a8917a",
+                opacity: 0,
               }}
             >
-              {CARDS.map((card) => (
-                <div
-                  key={card.caption}
-                  data-rad
-                  style={{
-                    position: "relative",
-                    width: "min(36vw, 480px)",
-                    aspectRatio: "16 / 10",
-                    borderRadius: "28px",
-                    overflow: "hidden",
-                    transform: `rotate(${card.tilt})`,
-                    boxShadow: "0 30px 60px rgba(27, 19, 12, 0.28)",
-                    opacity: 0,
-                  }}
-                >
-                  <video
-                    src={card.video}
-                    poster={card.poster}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "64px",
-                      height: "64px",
-                      borderRadius: "50%",
-                      background: "rgba(255, 255, 255, 0.92)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 8px 24px rgba(27, 19, 12, 0.35)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 0,
-                        height: 0,
-                        marginLeft: "5px",
-                        borderTop: "11px solid transparent",
-                        borderBottom: "11px solid transparent",
-                        borderLeft: "18px solid #e21b4d",
-                      }}
-                    />
-                  </div>
-                  <p
-                    style={{
-                      position: "absolute",
-                      left: "1.4rem",
-                      bottom: "1.1rem",
-                      fontFamily: "var(--font-display), sans-serif",
-                      textTransform: "uppercase",
-                      fontSize: "clamp(1.2rem, 2vw, 1.8rem)",
-                      color: "#fdfaf4",
-                      textShadow: "0 4px 18px rgba(0, 0, 0, 0.55)",
-                    }}
-                  >
-                    {card.caption}
-                  </p>
-                </div>
-              ))}
-            </div>
+              Além da lata
+            </p>
+            <h2
+              data-rad
+              style={{
+                fontFamily: "var(--font-display), sans-serif",
+                fontWeight: 400,
+                textTransform: "uppercase",
+                fontSize: "clamp(3rem, 8vw, 7.5rem)",
+                lineHeight: 1.0,
+                color: "#1b130c",
+                opacity: 0,
+              }}
+            >
+              Radical é o<br />
+              nosso normal.
+            </h2>
+            <div
+              data-rad
+              style={{
+                width: "72px",
+                height: "5px",
+                borderRadius: "999px",
+                background: "#e21b4d",
+                opacity: 0,
+              }}
+            />
+            <p
+              data-rad
+              style={{
+                maxWidth: "640px",
+                color: "#6b5d4b",
+                fontSize: "clamp(1rem, 1.4vw, 1.2rem)",
+                lineHeight: 1.7,
+                opacity: 0,
+              }}
+            >
+              Do salto da estratosfera ao pódio da Fórmula 1 — a Red Bull vive
+              onde a adrenalina mora.
+            </p>
           </div>
         </div>
       </section>
