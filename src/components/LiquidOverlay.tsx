@@ -34,8 +34,8 @@ const BUBBLES = [
 
 const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
-    caption: "Drift",
-    subtitle: "Rally · Drift na montanha",
+    caption: "Drift na Montanha",
+    subtitle: "Rally Driver vs Drift Mountain Challenge · Red Bull Motorsports",
     video: "/videos/drift.mp4",
     start: 83,
     youtube: "https://www.youtube.com/watch?v=Kyqhsds2gzw&t=94s",
@@ -43,8 +43,8 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
     lift: "1.5rem",
   },
   {
-    caption: "Voador",
-    subtitle: "Wingsuit · Voo livre",
+    caption: "Rumo ao Vulcão",
+    subtitle: "Flying Into An Active Volcano · Red Bull",
     video: "/videos/voador.mp4",
     start: 50,
     youtube: "https://www.youtube.com/watch?v=dGFPi5sZUGg",
@@ -52,8 +52,8 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
     lift: "-1rem",
   },
   {
-    caption: "Avião",
-    subtitle: "Air Race · Acrobacia aérea",
+    caption: "Avião no Túnel",
+    subtitle: "Flying A Plane Through Tunnels: World First · Red Bull",
     video: "/videos/avi%C3%A3o.mp4",
     start: 62,
     youtube: "https://www.youtube.com/watch?v=19fQAxys9q8",
@@ -61,8 +61,8 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
     lift: "1rem",
   },
   {
-    caption: "Bike",
-    subtitle: "Downhill · Trilha radical",
+    caption: "Rampage 2022",
+    subtitle: "First Full Run down Red Bull Rampage 2022 · Red Bull Bike",
     video: "/videos/bike.mp4",
     start: 26,
     youtube: "https://www.youtube.com/watch?v=a0XBHsSOEos",
@@ -494,8 +494,11 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
                       textAlign: "center",
                       fontFamily: "var(--font-display), sans-serif",
                       textTransform: "uppercase",
-                      fontSize: "1rem",
-                      letterSpacing: "0.08em",
+                      fontSize: "clamp(0.8rem, 0.95vw, 0.95rem)",
+                      letterSpacing: "0.06em",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                       color: "#1b130c",
                     }}
                   >

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+
+gsap.registerPlugin(useGSAP);
 
 export interface AdventureCard {
   caption: string;
@@ -16,11 +19,70 @@ interface VideoModalProps {
   onClose: () => void;
 }
 
+const TOP_WAVE_PATH =
+  "M0,48 C56,28 116,36 172,22 C232,6 286,52 346,30 C410,8 468,58 532,26 C592,-2 646,48 708,26 C770,4 828,52 890,28 C956,2 1014,48 1078,28 C1120,16 1164,32 1200,48 V110 H0 Z";
+
+const BOTTOM_WAVE_PATH =
+  "M0,0 H1200 V42 C1142,60 1088,30 1030,52 C970,76 910,30 850,58 C790,86 730,34 670,62 C610,90 550,36 490,64 C430,92 370,38 310,64 C250,88 190,36 130,58 C84,72 38,54 0,42 Z";
+
+const WAVE_COPIES = [0, 1, 2];
+
+const MODAL_BUBBLES = [
+  { left: "8%", size: 12, dur: 5.4, delay: 0.2 },
+  { left: "20%", size: 7, dur: 4.4, delay: 1.6 },
+  { left: "33%", size: 15, dur: 6.4, delay: 0.8 },
+  { left: "47%", size: 8, dur: 4.8, delay: 2.4 },
+  { left: "61%", size: 13, dur: 5.8, delay: 0.4 },
+  { left: "74%", size: 6, dur: 4.2, delay: 1.9 },
+  { left: "86%", size: 16, dur: 6.8, delay: 1.1 },
+  { left: "94%", size: 9, dur: 5.0, delay: 2.8 },
+];
+
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds)) return "0:00";
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function WaveStrip({
+  color,
+  duration,
+  path,
+}: {
+  color: string;
+  duration: number;
+  path: string;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "300%",
+        height: "100%",
+        display: "flex",
+        animation: `modalLiquidFlow ${duration}s linear infinite`,
+        willChange: "transform",
+      }}
+    >
+      {WAVE_COPIES.map((copy) => (
+        <svg
+          key={copy}
+          viewBox="0 0 1200 110"
+          preserveAspectRatio="none"
+          style={{
+            flex: "0 0 calc(33.333333% + 2px)",
+            height: "100%",
+            marginRight: "-2px",
+          }}
+        >
+          <path d={path} fill={color} />
+        </svg>
+      ))}
+    </div>
+  );
 }
 
 export default function VideoModal({ card, onClose }: VideoModalProps) {
@@ -35,22 +97,27 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
   const [current, setCurrent] = useState(0);
   const [buffered, setBuffered] = useState(0);
 
-  useEffect(() => {
-    const backdrop = backdropRef.current;
-    const frame = frameRef.current;
-    if (backdrop && frame) {
-      gsap.fromTo(
-        backdrop,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.35, ease: "power2.out" },
-      );
-      gsap.fromTo(
-        frame,
-        { opacity: 0, scale: 0.9, y: 34 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "power3.out" },
-      );
-    }
+  useGSAP(
+    () => {
+      const backdrop = backdropRef.current;
+      const frame = frameRef.current;
+      if (backdrop && frame) {
+        gsap.fromTo(
+          backdrop,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35, ease: "power2.out" },
+        );
+        gsap.fromTo(
+          frame,
+          { opacity: 0, scale: 0.9, y: 40 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "power3.out" },
+        );
+      }
+    },
+    { scope: backdropRef },
+  );
 
+  useEffect(() => {
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -78,7 +145,7 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
     gsap.to(frame, {
       opacity: 0,
       scale: 0.93,
-      y: 22,
+      y: 26,
       duration: 0.3,
       ease: "power2.in",
     });
@@ -121,21 +188,6 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
   const progress = duration ? (current / duration) * 100 : 0;
   const bufferedPct = duration ? (buffered / duration) * 100 : 0;
 
-  const iconBtn: React.CSSProperties = {
-    width: "44px",
-    height: "44px",
-    borderRadius: "50%",
-    border: "1px solid rgba(255, 255, 255, 0.12)",
-    background: "rgba(255, 255, 255, 0.06)",
-    color: "#f4f4f6",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    flexShrink: 0,
-    transition: "background 0.2s ease",
-  };
-
   return (
     <div
       ref={backdropRef}
@@ -144,64 +196,114 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
         inset: 0,
         zIndex: 80,
         background:
-          "radial-gradient(120% 120% at 50% 30%, rgba(38, 26, 6, 0.72) 0%, rgba(8, 10, 18, 0.86) 55%, rgba(4, 5, 10, 0.94) 100%)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
+          "radial-gradient(115% 115% at 50% 28%, rgba(64, 42, 4, 0.6) 0%, rgba(10, 12, 20, 0.82) 58%, rgba(4, 5, 10, 0.92) 100%)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "clamp(1rem, 4vw, 3rem)",
+        padding: "clamp(1.4rem, 4vw, 3.4rem)",
         pointerEvents: "auto",
         opacity: 0,
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: "-20%",
-          left: "50%",
-          width: "70vw",
-          height: "60vh",
-          transform: "translateX(-50%)",
-          background:
-            "radial-gradient(circle, rgba(249, 194, 53, 0.22) 0%, transparent 68%)",
-          filter: "blur(20px)",
-          pointerEvents: "none",
-        }}
-      />
+      <style>
+        {`
+          @keyframes modalLiquidFlow {
+            from {
+              transform: translate3d(0, 0, 0);
+            }
+            to {
+              transform: translate3d(-33.333%, 0, 0);
+            }
+          }
 
+          @keyframes modalLiquidBubble {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, 0, 0) scale(0.75);
+            }
+            18% {
+              opacity: 0.55;
+            }
+            72% {
+              opacity: 0;
+              transform: translate3d(0, -140px, 0) scale(1.05);
+            }
+            100% {
+              opacity: 0;
+              transform: translate3d(0, -140px, 0) scale(1.05);
+            }
+          }
+        `}
+      </style>
       <div onClick={close} style={{ position: "absolute", inset: 0 }} />
 
       <div
         ref={frameRef}
         style={{
           position: "relative",
-          width: "min(1120px, 100%)",
-          borderRadius: "30px",
-          padding: "1.5px",
-          background:
-            "linear-gradient(155deg, rgba(255, 255, 255, 0.28) 0%, rgba(249, 194, 53, 0.22) 26%, rgba(255, 255, 255, 0.04) 55%, rgba(226, 27, 77, 0.24) 100%)",
-          boxShadow:
-            "0 60px 140px rgba(0, 0, 0, 0.7), 0 0 90px rgba(249, 194, 53, 0.08)",
+          width: "min(1060px, 100%)",
+          filter:
+            "drop-shadow(0 46px 90px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 60px rgba(249, 194, 53, 0.16))",
           opacity: 0,
         }}
       >
         <div
           style={{
-            borderRadius: "28.5px",
+            position: "relative",
+            height: "36px",
+            overflow: "hidden",
+            marginBottom: "-2px",
+          }}
+        >
+          <WaveStrip color="#ffdf7a" duration={10} path={TOP_WAVE_PATH} />
+        </div>
+
+        <div
+          style={{
+            position: "relative",
             background:
-              "linear-gradient(168deg, #16233b 0%, #0c1526 52%, #080e1a 100%)",
-            padding: "clamp(14px, 1.6vw, 22px)",
+              "linear-gradient(180deg, #ffdf7a 0%, #f9c235 42%, #f0a90e 100%)",
+            padding: "clamp(16px, 1.8vw, 24px)",
             overflow: "hidden",
           }}
         >
           <div
             style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+            }}
+          >
+            {MODAL_BUBBLES.map((b, i) => (
+              <span
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: b.left,
+                  bottom: `-${b.size + 8}px`,
+                  width: `${b.size}px`,
+                  height: `${b.size}px`,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(circle at 32% 30%, rgba(255,255,255,0.95), rgba(255,255,255,0.1) 70%)",
+                  filter: "blur(0.4px)",
+                  animation: `modalLiquidBubble ${b.dur}s linear ${b.delay}s infinite`,
+                  opacity: 0,
+                }}
+              />
+            ))}
+          </div>
+
+          <div
+            style={{
+              position: "relative",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               gap: "1rem",
-              padding: "2px 4px 14px",
+              padding: "4px 6px 16px",
             }}
           >
             <div
@@ -214,11 +316,11 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
             >
               <span
                 style={{
-                  width: "10px",
-                  height: "10px",
+                  width: "11px",
+                  height: "11px",
                   borderRadius: "50%",
                   background: "#e21b4d",
-                  boxShadow: "0 0 16px rgba(226, 27, 77, 0.9)",
+                  boxShadow: "0 0 14px rgba(226, 27, 77, 0.7)",
                   flexShrink: 0,
                 }}
               />
@@ -227,10 +329,10 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                   style={{
                     fontFamily: "var(--font-display), sans-serif",
                     textTransform: "uppercase",
-                    fontSize: "clamp(1.25rem, 2vw, 1.7rem)",
+                    fontSize: "clamp(1.3rem, 2.1vw, 1.8rem)",
                     letterSpacing: "0.04em",
                     lineHeight: 1,
-                    color: "#f4f4f6",
+                    color: "#12233f",
                   }}
                 >
                   {card.caption}
@@ -238,11 +340,11 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                 {card.subtitle && (
                   <p
                     style={{
-                      marginTop: "5px",
-                      fontSize: "0.78rem",
-                      letterSpacing: "0.3em",
+                      marginTop: "6px",
+                      fontSize: "0.76rem",
+                      letterSpacing: "0.24em",
                       textTransform: "uppercase",
-                      color: "#8fa3c4",
+                      color: "#8a5a00",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -256,19 +358,35 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
             <button
               onClick={close}
               aria-label="Fechar"
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(226, 27, 77, 0.85)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)")
-              }
-              style={{ ...iconBtn }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#e21b4d";
+                const svg = e.currentTarget.querySelector("path");
+                if (svg) svg.setAttribute("stroke", "#ffffff");
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(18, 35, 63, 0.14)";
+                const svg = e.currentTarget.querySelector("path");
+                if (svg) svg.setAttribute("stroke", "#12233f");
+              }}
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(18, 35, 63, 0.14)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                flexShrink: 0,
+                transition: "background 0.2s ease",
+              }}
             >
               <svg width="15" height="15" viewBox="0 0 14 14">
                 <path
                   d="M1 1 L13 13 M13 1 L1 13"
-                  stroke="#f4f4f6"
-                  strokeWidth="1.8"
+                  stroke="#12233f"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 />
               </svg>
@@ -278,22 +396,22 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
           <div
             ref={stageRef}
             onMouseEnter={() => {
-              const c = stageRef.current?.querySelector<HTMLElement>(
-                "[data-center]",
-              );
+              const c =
+                stageRef.current?.querySelector<HTMLElement>("[data-center]");
               if (c) gsap.to(c, { opacity: 1, duration: 0.25 });
             }}
             onMouseLeave={() => {
-              const c = stageRef.current?.querySelector<HTMLElement>(
-                "[data-center]",
-              );
+              const c =
+                stageRef.current?.querySelector<HTMLElement>("[data-center]");
               if (c && playing) gsap.to(c, { opacity: 0, duration: 0.4 });
             }}
             style={{
               position: "relative",
               borderRadius: "20px",
               overflow: "hidden",
-              background: "#05070c",
+              background: "#0a1220",
+              boxShadow:
+                "inset 0 0 0 3px rgba(18, 35, 63, 0.28), 0 18px 40px rgba(120, 70, 0, 0.35)",
               aspectRatio: "16 / 9",
             }}
           >
@@ -343,15 +461,14 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
             >
               <div
                 style={{
-                  width: "84px",
-                  height: "84px",
+                  width: "86px",
+                  height: "86px",
                   borderRadius: "50%",
-                  background: "rgba(226, 27, 77, 0.92)",
+                  background: "rgba(226, 27, 77, 0.94)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 16px 40px rgba(226, 27, 77, 0.5)",
-                  backdropFilter: "blur(2px)",
                 }}
               >
                 {playing ? (
@@ -372,7 +489,7 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
             onClick={seek}
             style={{
               position: "relative",
-              height: "22px",
+              height: "24px",
               marginTop: "16px",
               display: "flex",
               alignItems: "center",
@@ -383,9 +500,9 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
               style={{
                 position: "relative",
                 width: "100%",
-                height: "6px",
+                height: "8px",
                 borderRadius: "999px",
-                background: "rgba(255, 255, 255, 0.12)",
+                background: "rgba(18, 35, 63, 0.16)",
                 overflow: "hidden",
               }}
             >
@@ -394,7 +511,7 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                   position: "absolute",
                   inset: 0,
                   width: `${bufferedPct}%`,
-                  background: "rgba(255, 255, 255, 0.16)",
+                  background: "rgba(18, 35, 63, 0.12)",
                 }}
               />
               <div
@@ -403,19 +520,20 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                   inset: 0,
                   width: `${progress}%`,
                   background:
-                    "linear-gradient(90deg, #e21b4d 0%, #f9c235 100%)",
+                    "linear-gradient(90deg, #e21b4d 0%, #ff5a36 100%)",
                 }}
               />
             </div>
             <span
               style={{
                 position: "absolute",
-                left: `calc(${progress}% - 7px)`,
-                width: "14px",
-                height: "14px",
+                left: `calc(${progress}% - 8px)`,
+                width: "16px",
+                height: "16px",
                 borderRadius: "50%",
-                background: "#ffffff",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                background: "#12233f",
+                border: "3px solid #fdfaf4",
+                boxShadow: "0 3px 10px rgba(80, 45, 0, 0.45)",
                 pointerEvents: "none",
               }}
             />
@@ -426,15 +544,15 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
               display: "flex",
               alignItems: "center",
               gap: "14px",
-              padding: "12px 4px 2px",
+              padding: "12px 4px 4px",
             }}
           >
             <button
               onClick={togglePlay}
               aria-label={playing ? "Pausar" : "Reproduzir"}
               style={{
-                width: "50px",
-                height: "50px",
+                width: "52px",
+                height: "52px",
                 borderRadius: "50%",
                 border: "none",
                 background: "#e21b4d",
@@ -443,7 +561,7 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                boxShadow: "0 12px 28px rgba(226, 27, 77, 0.42)",
+                boxShadow: "0 12px 26px rgba(180, 20, 60, 0.45)",
                 flexShrink: 0,
               }}
             >
@@ -461,14 +579,18 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
 
             <span
               style={{
-                fontSize: "0.9rem",
-                color: "#c7d2e4",
+                fontSize: "0.92rem",
+                color: "#12233f",
+                fontWeight: 600,
                 fontVariantNumeric: "tabular-nums",
                 flexShrink: 0,
               }}
             >
               {formatTime(current)}
-              <span style={{ color: "#5c6a80" }}> / {formatTime(duration)}</span>
+              <span style={{ color: "#8a5a00", fontWeight: 400 }}>
+                {" "}
+                / {formatTime(duration)}
+              </span>
             </span>
 
             <div style={{ flex: 1 }} />
@@ -476,17 +598,22 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
             <button
               onClick={toggleMute}
               aria-label={muted ? "Ativar som" : "Silenciar"}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(255, 255, 255, 0.12)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)")
-              }
-              style={{ ...iconBtn }}
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(18, 35, 63, 0.14)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
             >
               {muted ? (
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 9v6h4l5 4V5L8 9H4z" fill="#f4f4f6" />
+                  <path d="M4 9v6h4l5 4V5L8 9H4z" fill="#12233f" />
                   <line
                     x1="16"
                     y1="8"
@@ -508,16 +635,16 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                 </svg>
               ) : (
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 9v6h4l5 4V5L8 9H4z" fill="#f4f4f6" />
+                  <path d="M4 9v6h4l5 4V5L8 9H4z" fill="#12233f" />
                   <path
                     d="M16.5 8.5a5 5 0 0 1 0 7"
-                    stroke="#f4f4f6"
+                    stroke="#12233f"
                     strokeWidth="1.8"
                     strokeLinecap="round"
                   />
                   <path
                     d="M19 6a9 9 0 0 1 0 12"
-                    stroke="#f4f4f6"
+                    stroke="#12233f"
                     strokeWidth="1.8"
                     strokeLinecap="round"
                   />
@@ -555,7 +682,7 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
                 fontSize: "0.9rem",
                 fontWeight: 600,
                 letterSpacing: "0.02em",
-                boxShadow: "0 12px 30px rgba(255, 0, 51, 0.38)",
+                boxShadow: "0 12px 26px rgba(200, 0, 40, 0.4)",
                 flexShrink: 0,
               }}
             >
@@ -569,6 +696,17 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
               Assistir no YouTube
             </a>
           </div>
+        </div>
+
+        <div
+          style={{
+            position: "relative",
+            height: "40px",
+            overflow: "hidden",
+            marginTop: "-2px",
+          }}
+        >
+          <WaveStrip color="#f0a90e" duration={12} path={BOTTOM_WAVE_PATH} />
         </div>
       </div>
     </div>
