@@ -154,7 +154,8 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
       });
 
       const tick = () => {
-        const active = liquid.time() >= LIQUID.cards - 0.3;
+        const covered = timelines.legends.time() > 0.6;
+        const active = liquid.time() >= LIQUID.cards - 0.3 && !covered;
         videosRef.current.forEach((v, i) => {
           if (!v) return;
           if (active) {
@@ -163,6 +164,9 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
             v.pause();
             v.currentTime = CARDS[i].start;
           }
+        });
+        root.querySelectorAll<HTMLElement>("[data-liq-card]").forEach((el) => {
+          el.style.pointerEvents = covered ? "none" : "auto";
         });
       };
       gsap.ticker.add(tick);

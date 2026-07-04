@@ -41,3 +41,13 @@ export const LIQUID = {
   headline: 1.9,
   cards: 2.3,
 } as const;
+
+export const LEGENDS_DURATION = 7;
+export const LEGENDS = {
+  bars: 0.05,
+  word: 0.1,
+  bgReveal: 0.22,
+  flash: 0.52,
+  chapters: [0.95, 2.45, 3.95, 5.45],
+  chapterDur: 1.5,
+} as const;
