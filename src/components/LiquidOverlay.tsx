@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { LIQUID } from "@/lib/phases";
 import type { ExperienceTimelines } from "./Experience";
+import VideoModal, { AdventureCard } from "./VideoModal";
 
 gsap.registerPlugin(useGSAP, SplitText);
 
@@ -31,32 +32,36 @@ const BUBBLES = [
   { left: "92%", size: 17, dur: 7.0, delay: 1.5 },
 ];
 
-const CARDS = [
+const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
-    caption: "Stratos",
-    video: "/videos/stratos.mp4",
-    poster: "/videos/poster-stratos.svg",
+    caption: "Drift",
+    video: "/videos/drift.mp4",
+    start: 83,
+    youtube: "https://www.youtube.com/watch?v=Kyqhsds2gzw&t=94s",
     tilt: -8,
     lift: "1.5rem",
   },
   {
-    caption: "Cliff Diving",
-    video: "/videos/cliff.mp4",
-    poster: "/videos/poster-cliff.svg",
+    caption: "Voador",
+    video: "/videos/voador.mp4",
+    start: 50,
+    youtube: "https://www.youtube.com/watch?v=dGFPi5sZUGg",
     tilt: 5,
     lift: "-1rem",
   },
   {
-    caption: "Rampage",
-    video: "/videos/rampage.mp4",
-    poster: "/videos/poster-rampage.svg",
+    caption: "Avião",
+    video: "/videos/avi%C3%A3o.mp4",
+    start: 62,
+    youtube: "https://www.youtube.com/watch?v=19fQAxys9q8",
     tilt: -4,
     lift: "1rem",
   },
   {
-    caption: "Dakar",
-    video: "/videos/dakar.mp4",
-    poster: "/videos/poster-dakar.svg",
+    caption: "Bike",
+    video: "/videos/bike.mp4",
+    start: 26,
+    youtube: "https://www.youtube.com/watch?v=a0XBHsSOEos",
     tilt: 7,
     lift: "-1.6rem",
   },
@@ -65,6 +70,8 @@ const CARDS = [
 export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const liquidRef = useRef<HTMLDivElement>(null);
+  const videosRef = useRef<(HTMLVideoElement | null)[]>([]);
+  const [modalCard, setModalCard] = useState<AdventureCard | null>(null);
 
   useGSAP(
     () => {
@@ -142,7 +149,22 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
         );
       });
 
+      const tick = () => {
+        const active = liquid.time() >= LIQUID.cards - 0.3;
+        videosRef.current.forEach((v, i) => {
+          if (!v) return;
+          if (active) {
+            if (v.paused) v.play().catch(() => {});
+          } else if (!v.paused) {
+            v.pause();
+            v.currentTime = CARDS[i].start;
+          }
+        });
+      };
+      gsap.ticker.add(tick);
+
       return () => {
+        gsap.ticker.remove(tick);
         if (split) split.revert();
       };
     },
@@ -390,7 +412,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
             justifyContent: "center",
           }}
         >
-          {CARDS.map((card) => (
+          {CARDS.map((card, i) => (
             <div
               key={card.caption}
               data-liq-card
@@ -402,10 +424,12 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
             >
               <div data-float>
                 <div
+                  onClick={() => setModalCard(card)}
                   onMouseEnter={(e) => {
                     gsap.to(e.currentTarget, {
-                      scale: 1.05,
-                      y: -10,
+                      scale: 1.06,
+                      y: -12,
+                      boxShadow: "0 40px 70px rgba(90, 55, 0, 0.45)",
                       duration: 0.35,
                       ease: "power2.out",
                     });
@@ -414,6 +438,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
                     gsap.to(e.currentTarget, {
                       scale: 1,
                       y: 0,
+                      boxShadow: "0 26px 50px rgba(90, 55, 0, 0.35)",
                       duration: 0.45,
                       ease: "power2.out",
                     });
@@ -423,6 +448,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
                     borderRadius: "24px",
                     padding: "10px 10px 14px",
                     boxShadow: "0 26px 50px rgba(90, 55, 0, 0.35)",
+                    cursor: "pointer",
                   }}
                 >
                   <div
@@ -431,15 +457,25 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
                       aspectRatio: "9 / 13",
                       borderRadius: "16px",
                       overflow: "hidden",
+                      background: "#0c1524",
                     }}
                   >
                     <video
+                      ref={(el) => {
+                        videosRef.current[i] = el;
+                      }}
                       src={card.video}
-                      poster={card.poster}
-                      autoPlay
                       muted
-                      loop
                       playsInline
+                      preload="metadata"
+                      onLoadedMetadata={(e) => {
+                        e.currentTarget.currentTime = card.start;
+                      }}
+                      onEnded={(e) => {
+                        const v = e.currentTarget;
+                        v.currentTime = card.start;
+                        v.play().catch(() => {});
+                      }}
                       style={{
                         width: "100%",
                         height: "100%",
@@ -467,6 +503,10 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           ))}
         </div>
       </div>
+
+      {modalCard && (
+        <VideoModal card={modalCard} onClose={() => setModalCard(null)} />
+      )}
     </div>
   );
 }

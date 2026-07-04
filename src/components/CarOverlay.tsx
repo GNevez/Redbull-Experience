@@ -132,8 +132,10 @@ export default function CarOverlay({ timelines }: CarOverlayProps) {
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
         camera={{ position: [0, 0, 6], fov: 40, near: 0.1, far: 100 }}
+        style={{ pointerEvents: "none" }}
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);
+          gl.domElement.style.pointerEvents = "none";
         }}
       >
         <ambientLight intensity={1.1} color="#ffffff" />
