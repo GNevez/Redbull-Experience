@@ -35,6 +35,7 @@ const BUBBLES = [
 const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
     caption: "Drift",
+    subtitle: "Rally · Drift na montanha",
     video: "/videos/drift.mp4",
     start: 83,
     youtube: "https://www.youtube.com/watch?v=Kyqhsds2gzw&t=94s",
@@ -43,6 +44,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   },
   {
     caption: "Voador",
+    subtitle: "Wingsuit · Voo livre",
     video: "/videos/voador.mp4",
     start: 50,
     youtube: "https://www.youtube.com/watch?v=dGFPi5sZUGg",
@@ -51,6 +53,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   },
   {
     caption: "Avião",
+    subtitle: "Air Race · Acrobacia aérea",
     video: "/videos/avi%C3%A3o.mp4",
     start: 62,
     youtube: "https://www.youtube.com/watch?v=19fQAxys9q8",
@@ -59,6 +62,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   },
   {
     caption: "Bike",
+    subtitle: "Downhill · Trilha radical",
     video: "/videos/bike.mp4",
     start: 26,
     youtube: "https://www.youtube.com/watch?v=a0XBHsSOEos",
