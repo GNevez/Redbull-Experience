@@ -153,6 +153,12 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
         );
       });
 
+      timelines.finale.to(
+        root,
+        { opacity: 0, duration: 0.4, ease: "power2.in" },
+        0,
+      );
+
       const tick = () => {
         const covered = timelines.legends.time() > 0.6;
         const active = liquid.time() >= LIQUID.cards - 0.3 && !covered;

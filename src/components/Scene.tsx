@@ -13,7 +13,7 @@ import MainCan from "./MainCan";
 import ShockRing from "./ShockRing";
 import ClonedCans, { ClonedCansHandle, CLONE_SCALE } from "./ClonedCans";
 import Effects from "./Effects";
-import { BURST, FALL, ROLL, HERO_CLONE_INDEX } from "@/lib/phases";
+import { BURST, FALL, ROLL, FINALE, HERO_CLONE_INDEX } from "@/lib/phases";
 import type { ExperienceTimelines } from "./Experience";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -389,6 +389,54 @@ export default function Scene({ timelines }: SceneProps) {
           ROLL.settle,
         );
       }
+
+      const { finale } = timelines;
+      finale.set(mainCan, { visible: true }, 0.03);
+      finale.fromTo(
+        mainCan.position,
+        { x: 0, y: -7, z: -1.0 },
+        {
+          y: -1.35,
+          duration: 1.9,
+          ease: "power2.out",
+          immediateRender: false,
+        },
+        FINALE.rise,
+      );
+      finale.fromTo(
+        mainCan.rotation,
+        { x: 0, y: -Math.PI * 1.5, z: 0 },
+        {
+          y: 0.08,
+          duration: 3.6,
+          ease: "power1.out",
+          immediateRender: false,
+        },
+        FINALE.rise,
+      );
+      finale.fromTo(
+        mainCan.scale,
+        { x: CAN_SCALE * 0.82, y: CAN_SCALE * 0.82, z: CAN_SCALE * 0.82 },
+        {
+          x: CAN_SCALE * 0.9,
+          y: CAN_SCALE * 0.9,
+          z: CAN_SCALE * 0.9,
+          duration: 1.9,
+          ease: "power2.out",
+          immediateRender: false,
+        },
+        FINALE.rise,
+      );
+      finale.to(
+        mainCan.position,
+        { y: -1.18, duration: 1.6, ease: "sine.inOut" },
+        FINALE.rise + 2.0,
+      );
+      finale.to(
+        spot.position,
+        { x: 0, duration: 1.4, ease: "power2.inOut" },
+        FINALE.rise,
+      );
 
       ScrollTrigger.refresh();
     },

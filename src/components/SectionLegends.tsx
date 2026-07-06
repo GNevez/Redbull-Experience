@@ -289,6 +289,12 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
           LEGENDS.chapters[3] - 0.2,
         );
       }
+
+      timelines.finale.to(
+        root,
+        { opacity: 0, duration: 0.75, ease: "power2.inOut" },
+        0.05,
+      );
     },
     { scope: rootRef, dependencies: [timelines] },
   );

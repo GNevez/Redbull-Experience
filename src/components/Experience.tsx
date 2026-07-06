@@ -15,6 +15,7 @@ import SectionRoll from "./SectionRoll";
 import SectionRadical from "./SectionRadical";
 import LiquidOverlay from "./LiquidOverlay";
 import SectionLegends from "./SectionLegends";
+import SectionFinale from "./SectionFinale";
 import {
   HERO_SCRUB_DURATION,
   BURST_TRIGGER,
@@ -24,6 +25,7 @@ import {
   RADICAL_DURATION,
   LIQUID_DURATION,
   LEGENDS_DURATION,
+  FINALE_DURATION,
 } from "@/lib/phases";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -36,6 +38,7 @@ export interface ExperienceTimelines {
   radical: gsap.core.Timeline;
   liquid: gsap.core.Timeline;
   legends: gsap.core.Timeline;
+  finale: gsap.core.Timeline;
 }
 
 export default function Experience() {
@@ -45,6 +48,7 @@ export default function Experience() {
   const radicalRef = useRef<HTMLElement>(null);
   const diveRef = useRef<HTMLElement>(null);
   const legendsRef = useRef<HTMLElement>(null);
+  const finaleRef = useRef<HTMLElement>(null);
   const [timelines, setTimelines] = useState<ExperienceTimelines | null>(null);
 
   useGSAP(() => {
@@ -137,7 +141,27 @@ export default function Experience() {
     });
     legends.set({}, {}, LEGENDS_DURATION);
 
-    setTimelines({ heroScrub, burst, fall, roll, radical, liquid, legends });
+    const finale = gsap.timeline({
+      defaults: { ease: "none" },
+      scrollTrigger: {
+        trigger: finaleRef.current,
+        start: "top bottom",
+        end: "bottom bottom",
+        scrub: 1,
+      },
+    });
+    finale.set({}, {}, FINALE_DURATION);
+
+    setTimelines({
+      heroScrub,
+      burst,
+      fall,
+      roll,
+      radical,
+      liquid,
+      legends,
+      finale,
+    });
   });
 
   return (
@@ -186,6 +210,7 @@ export default function Experience() {
         ref={legendsRef}
         style={{ position: "relative", height: "750vh", zIndex: 1 }}
       />
+      <SectionFinale ref={finaleRef} timelines={timelines} />
 
       <LiquidOverlay timelines={timelines} />
       <SectionLegends timelines={timelines} />

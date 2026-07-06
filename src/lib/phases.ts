@@ -42,6 +42,15 @@ export const LIQUID = {
   cards: 2.3,
 } as const;
 
+export const FINALE_DURATION = 5;
+export const FINALE = {
+  exit: 0.05,
+  rise: 0.5,
+  headline: 1.7,
+  socials: 2.4,
+  credits: 3.1,
+} as const;
+
 export const LEGENDS_DURATION = 7;
 export const LEGENDS = {
   bars: 0.05,
