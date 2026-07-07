@@ -105,10 +105,10 @@ export default function OverlayType({ timelines }: OverlayTypeProps) {
           textTransform: "uppercase",
           fontSize: "clamp(2.5rem, 8vw, 7rem)",
           letterSpacing: "-0.01em",
-          lineHeight: 1.05,
+          lineHeight: 1.22,
           textAlign: "center",
           color: "#f4f4f6",
-          textShadow: "0 0 32px rgba(160, 190, 255, 0.18)",
+          filter: "drop-shadow(0 0 26px rgba(160, 190, 255, 0.28))",
           visibility: "hidden",
         }}
       >

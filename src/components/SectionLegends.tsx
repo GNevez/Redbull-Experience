@@ -14,9 +14,9 @@ interface SectionLegendsProps {
 
 const BARS = [
   { color: "#12233f", at: 0 },
-  { color: "#e21b4d", at: 0.09 },
-  { color: "#f9c235", at: 0.18 },
-  { color: "#f4f4f6", at: 0.27 },
+  { color: "#e21b4d", at: 0.13 },
+  { color: "#f9c235", at: 0.26 },
+  { color: "#f4f4f6", at: 0.39 },
 ];
 
 const STARS = [
@@ -130,7 +130,7 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
           { clipPath: "polygon(-30% 0%, -8% 0%, -30% 100%, -52% 100%)" },
           {
             clipPath: "polygon(-30% 0%, 152% 0%, 130% 100%, -52% 100%)",
-            duration: 0.55,
+            duration: 0.8,
             ease: "power2.inOut",
           },
           LEGENDS.bgReveal,
@@ -141,7 +141,7 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
         legends.fromTo(
           el,
           { xPercent: -160 },
-          { xPercent: 160, duration: 0.55, ease: "power2.inOut" },
+          { xPercent: 160, duration: 0.8, ease: "power2.inOut" },
           LEGENDS.bars + BARS[i].at,
         );
       });
@@ -152,10 +152,10 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
         legends.fromTo(
           word,
           { xPercent: 90 },
-          { xPercent: -110, duration: 0.75, ease: "none" },
+          { xPercent: -110, duration: 1.05, ease: "none" },
           LEGENDS.word,
         );
-        legends.to(word, { opacity: 0, duration: 0.12 }, LEGENDS.word + 0.75);
+        legends.to(word, { opacity: 0, duration: 0.12 }, LEGENDS.word + 1.05);
       }
 
       const label = root.querySelector("[data-label]");
@@ -292,7 +292,7 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
 
       timelines.finale.to(
         root,
-        { opacity: 0, yPercent: -12, duration: 0.45, ease: "power2.in" },
+        { opacity: 0, yPercent: -26, duration: 0.3, ease: "power2.in" },
         0.02,
       );
     },

@@ -361,34 +361,23 @@ export default function Scene({ timelines }: SceneProps) {
         );
         roll.set(heroItem.rotation, { order: "ZXY" }, 0);
         roll.to(
-          heroItem.rotation,
-          { z: -0.28, duration: 0.4, ease: "power2.inOut" },
-          0,
-        );
-        roll.to(
           heroItem.position,
-          { x: -2.4, duration: 2.75, ease: "power1.inOut" },
+          { x: -2.4, y: -0.25, duration: 3.1, ease: "power1.inOut" },
           ROLL.travel,
         );
         roll.to(
           heroItem.rotation,
-          { z: Math.PI * 2.2, duration: 2.75, ease: "power1.inOut" },
+          {
+            z: Math.PI * 2.2 - 0.2,
+            duration: 3.1,
+            ease: "power1.inOut",
+          },
           ROLL.travel,
         );
         roll.to(
           spot.position,
-          { x: -1.8, duration: 2.75, ease: "power1.inOut" },
+          { x: -1.8, duration: 3.1, ease: "power1.inOut" },
           ROLL.travel,
-        );
-        roll.to(
-          heroItem.position,
-          { y: -0.25, duration: 0.5, ease: "power2.out" },
-          ROLL.settle,
-        );
-        roll.to(
-          heroItem.rotation,
-          { z: Math.PI * 2.2 - 0.2, duration: 0.5, ease: "power2.out" },
-          ROLL.settle,
         );
       }
 
@@ -418,7 +407,7 @@ export default function Scene({ timelines }: SceneProps) {
         { x: 0.3, y: -Math.PI * 1.2, z: 0.2 },
         {
           y: 0.08,
-          duration: 2.6,
+          duration: 1.7,
           ease: "power1.out",
           immediateRender: false,
         },
@@ -429,11 +418,11 @@ export default function Scene({ timelines }: SceneProps) {
         mainCan.position,
         {
           keyframes: [
-            { x: 0.14, y: 0.38, duration: 0.28 },
-            { x: -0.12, y: 0.6, duration: 0.3 },
-            { x: 0.1, y: 0.42, duration: 0.27 },
-            { x: -0.13, y: 0.58, duration: 0.3 },
-            { x: 0.07, y: 0.48, duration: 0.25 },
+            { x: 0.14, y: 0.38, duration: 0.26 },
+            { x: -0.12, y: 0.6, duration: 0.28 },
+            { x: 0.1, y: 0.42, duration: 0.25 },
+            { x: -0.13, y: 0.58, duration: 0.28 },
+            { x: 0.07, y: 0.48, duration: 0.23 },
           ],
           ease: "none",
         },
@@ -443,10 +432,10 @@ export default function Scene({ timelines }: SceneProps) {
         mainCan.rotation,
         {
           keyframes: [
-            { x: -0.18, z: -0.16, duration: 0.34 },
-            { x: 0.14, z: 0.12, duration: 0.36 },
-            { x: -0.12, z: -0.14, duration: 0.33 },
-            { x: 0.1, z: 0.1, duration: 0.37 },
+            { x: -0.18, z: -0.16, duration: 0.32 },
+            { x: 0.14, z: 0.12, duration: 0.34 },
+            { x: -0.12, z: -0.14, duration: 0.31 },
+            { x: 0.1, z: 0.1, duration: 0.33 },
           ],
           ease: "none",
         },

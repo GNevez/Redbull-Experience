@@ -25,6 +25,9 @@ const TOP_WAVE_PATH =
 const BOTTOM_WAVE_PATH =
   "M0,0 H1200 V42 C1142,60 1088,30 1030,52 C970,76 910,30 850,58 C790,86 730,34 670,62 C610,90 550,36 490,64 C430,92 370,38 310,64 C250,88 190,36 130,58 C84,72 38,54 0,42 Z";
 
+const SIDE_WAVE_PATH =
+  "M110,0 H48 C28,55 66,115 46,175 C28,230 64,290 46,345 C28,400 66,460 46,515 C28,570 64,630 46,685 C28,740 66,800 46,855 C28,910 62,970 46,1025 C32,1080 62,1145 48,1200 H110 Z";
+
 const WAVE_COPIES = [0, 1, 2];
 
 const MODAL_BUBBLES = [
@@ -79,6 +82,45 @@ function WaveStrip({
           }}
         >
           <path d={path} fill={color} />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function SideWaveStrip({
+  color,
+  duration,
+}: {
+  color: string;
+  duration: number;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "300%",
+        display: "flex",
+        flexDirection: "column",
+        animation: `modalLiquidFlowY ${duration}s linear infinite`,
+        willChange: "transform",
+      }}
+    >
+      {WAVE_COPIES.map((copy) => (
+        <svg
+          key={copy}
+          viewBox="0 0 110 1200"
+          preserveAspectRatio="none"
+          style={{
+            width: "100%",
+            flex: "0 0 calc(33.333333% + 2px)",
+            marginBottom: "-2px",
+          }}
+        >
+          <path d={SIDE_WAVE_PATH} fill={color} />
         </svg>
       ))}
     </div>
@@ -218,6 +260,15 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
             }
           }
 
+          @keyframes modalLiquidFlowY {
+            from {
+              transform: translate3d(0, 0, 0);
+            }
+            to {
+              transform: translate3d(0, -33.333%, 0);
+            }
+          }
+
           @keyframes modalLiquidBubble {
             0% {
               opacity: 0;
@@ -251,18 +302,63 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
       >
         <div
           style={{
-            position: "relative",
-            height: "36px",
+            position: "absolute",
+            top: "-25px",
+            left: "26px",
+            right: "26px",
+            height: "58px",
             overflow: "hidden",
-            marginBottom: "-2px",
+            zIndex: 1,
           }}
         >
           <WaveStrip color="#ffdf7a" duration={10} path={TOP_WAVE_PATH} />
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-26px",
+            left: "26px",
+            right: "26px",
+            height: "60px",
+            overflow: "hidden",
+            zIndex: 1,
+          }}
+        >
+          <WaveStrip color="#f0a90e" duration={12} path={BOTTOM_WAVE_PATH} />
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            left: "-24px",
+            top: "26px",
+            bottom: "26px",
+            width: "58px",
+            overflow: "hidden",
+            zIndex: 1,
+          }}
+        >
+          <SideWaveStrip color="#f6bd1f" duration={13} />
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            right: "-24px",
+            top: "26px",
+            bottom: "26px",
+            width: "58px",
+            overflow: "hidden",
+            zIndex: 1,
+            transform: "scaleX(-1)",
+          }}
+        >
+          <SideWaveStrip color="#f2b016" duration={15} />
         </div>
 
         <div
           style={{
             position: "relative",
+            zIndex: 2,
+            borderRadius: "16px",
             background:
               "linear-gradient(180deg, #ffdf7a 0%, #f9c235 42%, #f0a90e 100%)",
             padding: "clamp(16px, 1.8vw, 24px)",
@@ -698,16 +794,6 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
           </div>
         </div>
 
-        <div
-          style={{
-            position: "relative",
-            height: "40px",
-            overflow: "hidden",
-            marginTop: "-2px",
-          }}
-        >
-          <WaveStrip color="#f0a90e" duration={12} path={BOTTOM_WAVE_PATH} />
-        </div>
       </div>
     </div>
   );

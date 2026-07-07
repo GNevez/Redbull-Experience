@@ -19,7 +19,6 @@ export const FALL = {
 export const ROLL_DURATION = 4;
 export const ROLL = {
   travel: 0.4,
-  settle: 3.15,
   reveal: 0.75,
   revealStagger: 0.16,
   revealDuration: 1.3,
@@ -29,9 +28,9 @@ export const HERO_CLONE_INDEX = 1;
 
 export const RADICAL_DURATION = 5;
 export const RADICAL = {
-  sweep: 0.2,
-  sweepDuration: 1.3,
-  content: 2.1,
+  sweep: 0.25,
+  sweepDuration: 1.9,
+  content: 2.5,
 } as const;
 
 export const LIQUID_DURATION = 5;
@@ -46,7 +45,7 @@ export const FINALE_DURATION = 5;
 export const FINALE = {
   exit: 0.02,
   fall: 0.55,
-  arrival: 2.5,
+  arrival: 2.35,
   headline: 3.2,
   socials: 3.7,
   credits: 4.15,
@@ -54,10 +53,10 @@ export const FINALE = {
 
 export const LEGENDS_DURATION = 7;
 export const LEGENDS = {
-  bars: 0.05,
-  word: 0.1,
-  bgReveal: 0.22,
-  flash: 0.52,
-  chapters: [0.95, 2.45, 3.95, 5.45],
-  chapterDur: 1.5,
+  bars: 0.08,
+  word: 0.15,
+  bgReveal: 0.35,
+  flash: 0.78,
+  chapters: [1.4, 2.8, 4.2, 5.6],
+  chapterDur: 1.4,
 } as const;

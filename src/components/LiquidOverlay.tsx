@@ -15,7 +15,7 @@ interface LiquidOverlayProps {
 }
 
 const WAVE_PATH =
-  "M0,0 H1200 V50 C1155,96 1108,102 1062,54 C1020,12 968,104 916,66 C868,32 822,118 776,72 C734,30 688,86 642,60 C596,36 552,108 506,64 C462,24 416,92 370,58 C328,28 282,102 236,64 C192,32 144,76 98,56 C62,42 28,60 0,50 Z";
+  "M0,0 H1200 V50 C1155,96 1108,102 1062,54 C1020,12 968,104 916,66 C868,32 822,118 776,72 C734,30 688,86 642,60 C596,36 552,108 506,64 C462,24 416,92 370,58 C328,28 282,102 236,64 C192,32 144,76 98,56 C74,46 45,4 0,50 Z";
 
 const BUBBLES = [
   { left: "6%", size: 14, dur: 6.2, delay: 0 },
@@ -269,6 +269,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           style={{
             position: "absolute",
             inset: 0,
+            zIndex: 2,
             background:
               "linear-gradient(180deg, #ffdf7a 0%, #f9c235 38%, #f0a90e 78%, #e2960a 100%)",
           }}
@@ -297,18 +298,34 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           data-wave
           style={{
             position: "absolute",
-            top: "calc(100% - 2px)",
+            top: "calc(100% - 54px)",
             left: 0,
             width: "200%",
-            height: "110px",
+            height: "112px",
             display: "flex",
-            opacity: 0.55,
+            zIndex: 1,
           }}
         >
-          <svg viewBox="0 0 1200 110" preserveAspectRatio="none" style={{ width: "50%", height: "100%" }}>
+          <svg
+            viewBox="0 0 1200 110"
+            preserveAspectRatio="none"
+            style={{
+              flex: "0 0 calc(50% + 2px)",
+              height: "100%",
+              marginRight: "-2px",
+            }}
+          >
             <path d={WAVE_PATH} fill="#ffd75e" />
           </svg>
-          <svg viewBox="0 0 1200 110" preserveAspectRatio="none" style={{ width: "50%", height: "100%" }}>
+          <svg
+            viewBox="0 0 1200 110"
+            preserveAspectRatio="none"
+            style={{
+              flex: "0 0 calc(50% + 2px)",
+              height: "100%",
+              marginRight: "-2px",
+            }}
+          >
             <path d={WAVE_PATH} fill="#ffd75e" />
           </svg>
         </div>
@@ -316,17 +333,34 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           data-wave
           style={{
             position: "absolute",
-            top: "calc(100% - 2px)",
+            top: "calc(100% - 40px)",
             left: "-14%",
             width: "200%",
             height: "96px",
             display: "flex",
+            zIndex: 1,
           }}
         >
-          <svg viewBox="0 0 1200 110" preserveAspectRatio="none" style={{ width: "50%", height: "100%" }}>
+          <svg
+            viewBox="0 0 1200 110"
+            preserveAspectRatio="none"
+            style={{
+              flex: "0 0 calc(50% + 2px)",
+              height: "100%",
+              marginRight: "-2px",
+            }}
+          >
             <path d={WAVE_PATH} fill="#e2960a" />
           </svg>
-          <svg viewBox="0 0 1200 110" preserveAspectRatio="none" style={{ width: "50%", height: "100%" }}>
+          <svg
+            viewBox="0 0 1200 110"
+            preserveAspectRatio="none"
+            style={{
+              flex: "0 0 calc(50% + 2px)",
+              height: "100%",
+              marginRight: "-2px",
+            }}
+          >
             <path d={WAVE_PATH} fill="#e2960a" />
           </svg>
         </div>
@@ -336,6 +370,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           style={{
             position: "absolute",
             inset: 0,
+            zIndex: 3,
             background:
               "linear-gradient(115deg, transparent 34%, rgba(255, 255, 255, 0.16) 50%, transparent 66%)",
             width: "160%",
@@ -346,6 +381,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           style={{
             position: "absolute",
             inset: 0,
+            zIndex: 3,
             background:
               "radial-gradient(circle at 50% 38%, transparent 52%, rgba(150, 90, 0, 0.22) 100%)",
           }}

@@ -96,7 +96,7 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
     return (
       <section
         ref={ref}
-        style={{ position: "relative", height: "350vh", zIndex: 1 }}
+        style={{ position: "relative", height: "400vh", zIndex: 1 }}
       >
         <div
           ref={stickyRef}

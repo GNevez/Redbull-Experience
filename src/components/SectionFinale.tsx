@@ -317,7 +317,7 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
                   textTransform: "uppercase",
                   whiteSpace: "nowrap",
                   fontSize: "clamp(3.4rem, 10.5vw, 10rem)",
-                  lineHeight: 1,
+                  lineHeight: 1.22,
                   color: "#f4f4f6",
                   filter: "drop-shadow(0 0 30px rgba(160, 190, 255, 0.28))",
                   visibility: "hidden",
