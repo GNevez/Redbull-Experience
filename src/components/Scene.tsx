@@ -277,6 +277,8 @@ export default function Scene({ timelines }: SceneProps) {
         );
       });
 
+      fall.set(mainCan, { visible: false }, 0.02);
+
       cloneItems.forEach((item, i) => {
         if (!item) return;
         const target = targets[i];
@@ -391,51 +393,118 @@ export default function Scene({ timelines }: SceneProps) {
       }
 
       const { finale } = timelines;
-      finale.set(mainCan, { visible: true }, 0.03);
+      finale.set(mainCan, { visible: true }, FINALE.fall - 0.05);
+
       finale.fromTo(
         mainCan.position,
-        { x: 0, y: -7, z: -1.0 },
-        {
-          y: -1.35,
-          duration: 1.9,
-          ease: "power2.out",
-          immediateRender: false,
-        },
-        FINALE.rise,
-      );
-      finale.fromTo(
-        mainCan.rotation,
-        { x: 0, y: -Math.PI * 1.5, z: 0 },
-        {
-          y: 0.08,
-          duration: 3.6,
-          ease: "power1.out",
-          immediateRender: false,
-        },
-        FINALE.rise,
+        { x: 0, y: 8.5, z: -0.3 },
+        { y: 0.55, duration: 0.5, ease: "power3.out", immediateRender: false },
+        FINALE.fall,
       );
       finale.fromTo(
         mainCan.scale,
-        { x: CAN_SCALE * 0.82, y: CAN_SCALE * 0.82, z: CAN_SCALE * 0.82 },
+        { x: CAN_SCALE * 0.95, y: CAN_SCALE * 0.95, z: CAN_SCALE * 0.95 },
+        {
+          x: CAN_SCALE * 0.95,
+          y: CAN_SCALE * 0.95,
+          z: CAN_SCALE * 0.95,
+          duration: 0.1,
+          immediateRender: false,
+        },
+        FINALE.fall,
+      );
+      finale.fromTo(
+        mainCan.rotation,
+        { x: 0.3, y: -Math.PI * 1.2, z: 0.2 },
+        {
+          y: 0.08,
+          duration: 2.6,
+          ease: "power1.out",
+          immediateRender: false,
+        },
+        FINALE.fall,
+      );
+
+      finale.to(
+        mainCan.position,
+        {
+          keyframes: [
+            { x: 0.14, y: 0.38, duration: 0.28 },
+            { x: -0.12, y: 0.6, duration: 0.3 },
+            { x: 0.1, y: 0.42, duration: 0.27 },
+            { x: -0.13, y: 0.58, duration: 0.3 },
+            { x: 0.07, y: 0.48, duration: 0.25 },
+          ],
+          ease: "none",
+        },
+        FINALE.fall + 0.5,
+      );
+      finale.to(
+        mainCan.rotation,
+        {
+          keyframes: [
+            { x: -0.18, z: -0.16, duration: 0.34 },
+            { x: 0.14, z: 0.12, duration: 0.36 },
+            { x: -0.12, z: -0.14, duration: 0.33 },
+            { x: 0.1, z: 0.1, duration: 0.37 },
+          ],
+          ease: "none",
+        },
+        FINALE.fall + 0.5,
+      );
+
+      finale.to(
+        camera.position,
+        {
+          keyframes: [
+            { x: 0.03, y: -0.025, duration: 0.16 },
+            { x: -0.028, y: 0.02, duration: 0.17 },
+            { x: 0.024, y: -0.018, duration: 0.16 },
+            { x: -0.03, y: 0.024, duration: 0.17 },
+            { x: 0.02, y: -0.015, duration: 0.16 },
+            { x: -0.022, y: 0.018, duration: 0.17 },
+            { x: 0, y: 0, duration: 0.18 },
+          ],
+          ease: "none",
+        },
+        FINALE.fall + 0.4,
+      );
+      finale.to(
+        camera.position,
+        { z: 5.55, duration: 0.9, ease: "power2.inOut" },
+        FINALE.fall + 0.3,
+      );
+      finale.to(
+        camera.position,
+        { z: 6, duration: 0.8, ease: "power2.inOut" },
+        FINALE.arrival,
+      );
+
+      finale.to(
+        mainCan.position,
+        { x: 0, y: -1.15, z: -1.0, duration: 0.75, ease: "power2.inOut" },
+        FINALE.arrival,
+      );
+      finale.to(
+        mainCan.scale,
         {
           x: CAN_SCALE * 0.9,
           y: CAN_SCALE * 0.9,
           z: CAN_SCALE * 0.9,
-          duration: 1.9,
-          ease: "power2.out",
-          immediateRender: false,
+          duration: 0.75,
+          ease: "power2.inOut",
         },
-        FINALE.rise,
+        FINALE.arrival,
       );
       finale.to(
-        mainCan.position,
-        { y: -1.18, duration: 1.6, ease: "sine.inOut" },
-        FINALE.rise + 2.0,
+        mainCan.rotation,
+        { x: 0.02, y: 0.08, z: -0.14, duration: 0.75, ease: "power2.out" },
+        FINALE.arrival,
       );
       finale.to(
         spot.position,
-        { x: 0, duration: 1.4, ease: "power2.inOut" },
-        FINALE.rise,
+        { x: 0, duration: 1.0, ease: "power2.inOut" },
+        FINALE.fall,
       );
 
       ScrollTrigger.refresh();
@@ -446,6 +515,15 @@ export default function Scene({ timelines }: SceneProps) {
   useFrame((state) => {
     const clones = clonesRef.current;
     if (!timelines || !clones) return;
+
+    const mainCan = mainCanRef.current;
+    if (mainCan && timelines.finale.time() > FINALE.arrival + 0.85) {
+      const t = state.clock.elapsedTime;
+      mainCan.position.y = -1.15 + Math.sin(t * 0.8) * 0.07;
+      mainCan.rotation.z = -0.14 + Math.sin(t * 0.6 + 1.2) * 0.05;
+      mainCan.rotation.y = 0.08 + Math.sin(t * 0.35) * 0.3;
+    }
+
     const { burst, fall } = timelines;
     if (burst.reversed() || fall.time() > 0.03) return;
     const t = burst.time();

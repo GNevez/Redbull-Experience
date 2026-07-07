@@ -97,8 +97,7 @@ const SectionEnergy = forwardRef<HTMLElement, SectionEnergyProps>(
             >
               Apreciada no mundo inteiro por atletas, criadores e sonhadores,
               Red Bull Energy Drink foi feita para os momentos que pedem foco,
-              presença e performance — do treino decisivo à madrugada de
-              projeto.
+              presença e performance do treino decisivo à madrugada de projeto.
             </p>
           </div>
         </div>

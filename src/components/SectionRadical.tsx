@@ -241,7 +241,7 @@ const SectionRadical = forwardRef<HTMLElement, SectionRadicalProps>(
                 opacity: 0,
               }}
             >
-              Do salto da estratosfera ao pódio da Fórmula 1 — a Red Bull vive
+              Do salto da estratosfera ao pódio da Fórmula 1 a Red Bull vive
               onde a adrenalina mora.
             </p>
           </div>

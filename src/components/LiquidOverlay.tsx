@@ -153,11 +153,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
         );
       });
 
-      timelines.finale.to(
-        root,
-        { opacity: 0, duration: 0.4, ease: "power2.in" },
-        0,
-      );
+      timelines.finale.set(root, { opacity: 0 }, 0.01);
 
       const tick = () => {
         const covered = timelines.legends.time() > 0.6;

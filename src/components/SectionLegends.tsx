@@ -292,8 +292,8 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
 
       timelines.finale.to(
         root,
-        { opacity: 0, duration: 0.75, ease: "power2.inOut" },
-        0.05,
+        { opacity: 0, yPercent: -12, duration: 0.45, ease: "power2.in" },
+        0.02,
       );
     },
     { scope: rootRef, dependencies: [timelines] },

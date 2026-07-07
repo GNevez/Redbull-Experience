@@ -77,6 +77,29 @@ const SOCIALS = [
   },
 ];
 
+const WIND_STREAKS = [
+  { left: "5%", height: "22vh", dur: 0.42, delay: 0 },
+  { left: "12%", height: "14vh", dur: 0.36, delay: 0.12 },
+  { left: "19%", height: "26vh", dur: 0.48, delay: 0.05 },
+  { left: "27%", height: "12vh", dur: 0.33, delay: 0.2 },
+  { left: "34%", height: "20vh", dur: 0.44, delay: 0.09 },
+  { left: "43%", height: "15vh", dur: 0.37, delay: 0.16 },
+  { left: "52%", height: "24vh", dur: 0.46, delay: 0.02 },
+  { left: "61%", height: "13vh", dur: 0.34, delay: 0.22 },
+  { left: "68%", height: "21vh", dur: 0.43, delay: 0.07 },
+  { left: "76%", height: "16vh", dur: 0.38, delay: 0.14 },
+  { left: "84%", height: "25vh", dur: 0.47, delay: 0.04 },
+  { left: "91%", height: "14vh", dur: 0.35, delay: 0.18 },
+  { left: "96%", height: "19vh", dur: 0.41, delay: 0.1 },
+];
+
+const WIND_PUFFS = [
+  { left: "10%", size: 220, dur: 1.1, delay: 0 },
+  { left: "38%", size: 300, dur: 1.35, delay: 0.4 },
+  { left: "64%", size: 250, dur: 1.2, delay: 0.75 },
+  { left: "86%", size: 280, dur: 1.3, delay: 0.2 },
+];
+
 const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
   function SectionFinale({ timelines }, ref) {
     const stickyRef = useRef<HTMLDivElement>(null);
@@ -84,8 +107,60 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
     useGSAP(
       () => {
         const sticky = stickyRef.current;
+        if (!sticky) return;
+
+        sticky.querySelectorAll("[data-streak-v]").forEach((el, i) => {
+          const cfg = WIND_STREAKS[i];
+          gsap.fromTo(
+            el,
+            { yPercent: -160 },
+            {
+              yPercent: 900,
+              duration: cfg.dur,
+              delay: cfg.delay,
+              ease: "none",
+              repeat: -1,
+            },
+          );
+        });
+        sticky.querySelectorAll("[data-puff]").forEach((el, i) => {
+          const cfg = WIND_PUFFS[i];
+          gsap.fromTo(
+            el,
+            { yPercent: -140 },
+            {
+              yPercent: 620,
+              duration: cfg.dur,
+              delay: cfg.delay,
+              ease: "none",
+              repeat: -1,
+            },
+          );
+        });
+      },
+      { scope: stickyRef },
+    );
+
+    useGSAP(
+      () => {
+        const sticky = stickyRef.current;
         if (!timelines || !sticky) return;
         const { finale } = timelines;
+
+        const fx = sticky.querySelector("[data-fall-fx]");
+        if (fx) {
+          finale.fromTo(
+            fx,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.3, ease: "power1.in" },
+            FINALE.fall + 0.3,
+          );
+          finale.to(
+            fx,
+            { opacity: 0, duration: 0.45, ease: "power2.out" },
+            FINALE.arrival,
+          );
+        }
 
         const eyebrow = sticky.querySelector("[data-fin-eyebrow]");
         if (eyebrow) {
@@ -166,6 +241,49 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
             pointerEvents: "none",
           }}
         >
+          <div
+            data-fall-fx
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0,
+            }}
+          >
+            {WIND_STREAKS.map((s, i) => (
+              <span
+                key={`s${i}`}
+                data-streak-v
+                style={{
+                  position: "absolute",
+                  left: s.left,
+                  top: 0,
+                  width: "2px",
+                  height: s.height,
+                  borderRadius: "999px",
+                  background:
+                    "linear-gradient(180deg, transparent, rgba(223, 232, 255, 0.55), transparent)",
+                }}
+              />
+            ))}
+            {WIND_PUFFS.map((p, i) => (
+              <span
+                key={`p${i}`}
+                data-puff
+                style={{
+                  position: "absolute",
+                  left: p.left,
+                  top: 0,
+                  width: `${p.size}px`,
+                  height: `${p.size * 0.44}px`,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(ellipse, rgba(223, 232, 255, 0.09), transparent 70%)",
+                  filter: "blur(6px)",
+                }}
+              />
+            ))}
+          </div>
+
           <div
             style={{
               position: "absolute",

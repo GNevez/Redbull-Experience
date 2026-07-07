@@ -44,11 +44,12 @@ export const LIQUID = {
 
 export const FINALE_DURATION = 5;
 export const FINALE = {
-  exit: 0.05,
-  rise: 0.5,
-  headline: 1.7,
-  socials: 2.4,
-  credits: 3.1,
+  exit: 0.02,
+  fall: 0.55,
+  arrival: 2.5,
+  headline: 3.2,
+  socials: 3.7,
+  credits: 4.15,
 } as const;
 
 export const LEGENDS_DURATION = 7;
