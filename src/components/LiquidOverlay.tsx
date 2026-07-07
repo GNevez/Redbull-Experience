@@ -263,6 +263,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
           right: 0,
           height: "100%",
           top: "-112%",
+          isolation: "isolate",
         }}
       >
         <div

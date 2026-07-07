@@ -19,17 +19,6 @@ interface VideoModalProps {
   onClose: () => void;
 }
 
-const TOP_WAVE_PATH =
-  "M0,48 C56,28 116,36 172,22 C232,6 286,52 346,30 C410,8 468,58 532,26 C592,-2 646,48 708,26 C770,4 828,52 890,28 C956,2 1014,48 1078,28 C1120,16 1164,32 1200,48 V110 H0 Z";
-
-const BOTTOM_WAVE_PATH =
-  "M0,0 H1200 V42 C1142,60 1088,30 1030,52 C970,76 910,30 850,58 C790,86 730,34 670,62 C610,90 550,36 490,64 C430,92 370,38 310,64 C250,88 190,36 130,58 C84,72 38,54 0,42 Z";
-
-const SIDE_WAVE_PATH =
-  "M110,0 H48 C28,55 66,115 46,175 C28,230 64,290 46,345 C28,400 66,460 46,515 C28,570 64,630 46,685 C28,740 66,800 46,855 C28,910 62,970 46,1025 C32,1080 62,1145 48,1200 H110 Z";
-
-const WAVE_COPIES = [0, 1, 2];
-
 const MODAL_BUBBLES = [
   { left: "8%", size: 12, dur: 5.4, delay: 0.2 },
   { left: "20%", size: 7, dur: 4.4, delay: 1.6 },
@@ -46,85 +35,6 @@ function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
-function WaveStrip({
-  color,
-  duration,
-  path,
-}: {
-  color: string;
-  duration: number;
-  path: string;
-}) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "300%",
-        height: "100%",
-        display: "flex",
-        animation: `modalLiquidFlow ${duration}s linear infinite`,
-        willChange: "transform",
-      }}
-    >
-      {WAVE_COPIES.map((copy) => (
-        <svg
-          key={copy}
-          viewBox="0 0 1200 110"
-          preserveAspectRatio="none"
-          style={{
-            flex: "0 0 calc(33.333333% + 2px)",
-            height: "100%",
-            marginRight: "-2px",
-          }}
-        >
-          <path d={path} fill={color} />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
-function SideWaveStrip({
-  color,
-  duration,
-}: {
-  color: string;
-  duration: number;
-}) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "300%",
-        display: "flex",
-        flexDirection: "column",
-        animation: `modalLiquidFlowY ${duration}s linear infinite`,
-        willChange: "transform",
-      }}
-    >
-      {WAVE_COPIES.map((copy) => (
-        <svg
-          key={copy}
-          viewBox="0 0 110 1200"
-          preserveAspectRatio="none"
-          style={{
-            width: "100%",
-            flex: "0 0 calc(33.333333% + 2px)",
-            marginBottom: "-2px",
-          }}
-        >
-          <path d={SIDE_WAVE_PATH} fill={color} />
-        </svg>
-      ))}
-    </div>
-  );
 }
 
 export default function VideoModal({ card, onClose }: VideoModalProps) {
@@ -154,6 +64,22 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
           { opacity: 0, scale: 0.9, y: 40 },
           { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "power3.out" },
         );
+        backdrop
+          .querySelectorAll<SVGFETurbulenceElement>("feTurbulence")
+          .forEach((node, i) => {
+            const freq = { x: 0.011 + i * 0.004, y: 0.017 + i * 0.005 };
+            gsap.to(freq, {
+              x: freq.x * 1.55,
+              y: freq.y * 1.45,
+              duration: 5.5 + i * 2.1,
+              ease: "sine.inOut",
+              yoyo: true,
+              repeat: -1,
+              onUpdate: () => {
+                node.setAttribute("baseFrequency", `${freq.x} ${freq.y}`);
+              },
+            });
+          });
       }
     },
     { scope: backdropRef },
@@ -251,24 +177,6 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
     >
       <style>
         {`
-          @keyframes modalLiquidFlow {
-            from {
-              transform: translate3d(0, 0, 0);
-            }
-            to {
-              transform: translate3d(-33.333%, 0, 0);
-            }
-          }
-
-          @keyframes modalLiquidFlowY {
-            from {
-              transform: translate3d(0, 0, 0);
-            }
-            to {
-              transform: translate3d(0, -33.333%, 0);
-            }
-          }
-
           @keyframes modalLiquidBubble {
             0% {
               opacity: 0;
@@ -300,59 +208,81 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
           opacity: 0,
         }}
       >
+        <svg
+          width="0"
+          height="0"
+          aria-hidden="true"
+          style={{ position: "absolute" }}
+        >
+          <defs>
+            <filter
+              id="modalLiquidEdgeOuter"
+              x="-25%"
+              y="-25%"
+              width="150%"
+              height="150%"
+            >
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.014 0.021"
+                numOctaves="2"
+                seed="26"
+                result="noise"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="noise"
+                scale="30"
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+            <filter
+              id="modalLiquidEdgeInner"
+              x="-25%"
+              y="-25%"
+              width="150%"
+              height="150%"
+            >
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.011 0.017"
+                numOctaves="2"
+                seed="7"
+                result="noise"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="noise"
+                scale="22"
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+          </defs>
+        </svg>
+
         <div
           style={{
             position: "absolute",
-            top: "-25px",
-            left: "26px",
-            right: "26px",
-            height: "58px",
-            overflow: "hidden",
-            zIndex: 1,
+            inset: "-26px",
+            borderRadius: "46px",
+            background: "linear-gradient(180deg, #f6bd1f 0%, #e2960a 100%)",
+            filter: "url(#modalLiquidEdgeOuter)",
+            pointerEvents: "none",
           }}
-        >
-          <WaveStrip color="#ffdf7a" duration={10} path={TOP_WAVE_PATH} />
-        </div>
+        />
         <div
           style={{
             position: "absolute",
-            bottom: "-26px",
-            left: "26px",
-            right: "26px",
-            height: "60px",
-            overflow: "hidden",
-            zIndex: 1,
+            inset: "-13px",
+            borderRadius: "36px",
+            background:
+              "linear-gradient(180deg, #ffdf7a 0%, #f9c235 55%, #f0a90e 100%)",
+            filter: "url(#modalLiquidEdgeInner)",
+            pointerEvents: "none",
           }}
-        >
-          <WaveStrip color="#f0a90e" duration={12} path={BOTTOM_WAVE_PATH} />
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            left: "-24px",
-            top: "26px",
-            bottom: "26px",
-            width: "58px",
-            overflow: "hidden",
-            zIndex: 1,
-          }}
-        >
-          <SideWaveStrip color="#f6bd1f" duration={13} />
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            right: "-24px",
-            top: "26px",
-            bottom: "26px",
-            width: "58px",
-            overflow: "hidden",
-            zIndex: 1,
-            transform: "scaleX(-1)",
-          }}
-        >
-          <SideWaveStrip color="#f2b016" duration={15} />
-        </div>
+        />
 
         <div
           style={{
