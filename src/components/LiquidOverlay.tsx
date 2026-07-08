@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -76,6 +76,12 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
   const liquidRef = useRef<HTMLDivElement>(null);
   const videosRef = useRef<(HTMLVideoElement | null)[]>([]);
   const [modalCard, setModalCard] = useState<AdventureCard | null>(null);
+
+  useEffect(() => {
+    const onReset = () => setModalCard(null);
+    window.addEventListener("experience-reset", onReset);
+    return () => window.removeEventListener("experience-reset", onReset);
+  }, []);
 
   useGSAP(
     () => {

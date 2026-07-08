@@ -16,6 +16,7 @@ import SectionRadical from "./SectionRadical";
 import LiquidOverlay from "./LiquidOverlay";
 import SectionLegends from "./SectionLegends";
 import SectionFinale from "./SectionFinale";
+import ResetButton from "./ResetButton";
 import {
   HERO_SCRUB_DURATION,
   BURST_TRIGGER,
@@ -202,19 +203,20 @@ export default function Experience() {
           position: "relative",
           height: "450vh",
           zIndex: 1,
-          background: "linear-gradient(180deg, #ece1cf 0%, #f4ede0 100%)",
+          background: "linear-gradient(250deg, #ece1cf 0%, #f4ede0 100%)",
         }}
       />
 
       <section
         ref={legendsRef}
-        style={{ position: "relative", height: "750vh", zIndex: 1 }}
+        style={{ position: "relative", height: "1050vh", zIndex: 1 }}
       />
       <SectionFinale ref={finaleRef} timelines={timelines} />
 
       <LiquidOverlay timelines={timelines} />
       <SectionLegends timelines={timelines} />
       <CarOverlay timelines={timelines} />
+      <ResetButton timelines={timelines} />
     </main>
   );
 }

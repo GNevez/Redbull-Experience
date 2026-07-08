@@ -67,10 +67,10 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
         backdrop
           .querySelectorAll<SVGFETurbulenceElement>("feTurbulence")
           .forEach((node, i) => {
-            const freq = { x: 0.011 + i * 0.004, y: 0.017 + i * 0.005 };
+            const freq = { x: 0.007 - i * 0.002, y: 0.01 - i * 0.002 };
             gsap.to(freq, {
-              x: freq.x * 1.55,
-              y: freq.y * 1.45,
+              x: freq.x * 1.4,
+              y: freq.y * 1.35,
               duration: 5.5 + i * 2.1,
               ease: "sine.inOut",
               yoyo: true,
@@ -221,20 +221,28 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
               y="-25%"
               width="150%"
               height="150%"
+              colorInterpolationFilters="sRGB"
             >
               <feTurbulence
                 type="fractalNoise"
-                baseFrequency="0.014 0.021"
-                numOctaves="2"
+                baseFrequency="0.007 0.01"
+                numOctaves="1"
                 seed="26"
                 result="noise"
               />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="soft" />
               <feDisplacementMap
-                in="SourceGraphic"
+                in="soft"
                 in2="noise"
-                scale="30"
+                scale="34"
                 xChannelSelector="R"
                 yChannelSelector="G"
+                result="disp"
+              />
+              <feColorMatrix
+                in="disp"
+                type="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"
               />
             </filter>
             <filter
@@ -243,20 +251,28 @@ export default function VideoModal({ card, onClose }: VideoModalProps) {
               y="-25%"
               width="150%"
               height="150%"
+              colorInterpolationFilters="sRGB"
             >
               <feTurbulence
                 type="fractalNoise"
-                baseFrequency="0.011 0.017"
-                numOctaves="2"
+                baseFrequency="0.005 0.008"
+                numOctaves="1"
                 seed="7"
                 result="noise"
               />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="soft" />
               <feDisplacementMap
-                in="SourceGraphic"
+                in="soft"
                 in2="noise"
-                scale="22"
+                scale="26"
                 xChannelSelector="R"
                 yChannelSelector="G"
+                result="disp"
+              />
+              <feColorMatrix
+                in="disp"
+                type="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"
               />
             </filter>
           </defs>

@@ -51,12 +51,12 @@ export const FINALE = {
   credits: 4.15,
 } as const;
 
-export const LEGENDS_DURATION = 7;
+export const LEGENDS_DURATION = 9.8;
 export const LEGENDS = {
   bars: 0.08,
   word: 0.15,
   bgReveal: 0.35,
   flash: 0.78,
-  chapters: [1.4, 2.8, 4.2, 5.6],
-  chapterDur: 1.4,
+  chapters: [1.4, 3.5, 5.6, 7.7],
+  chapterDur: 2.1,
 } as const;

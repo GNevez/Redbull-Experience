@@ -100,9 +100,19 @@ const WIND_PUFFS = [
   { left: "86%", size: 280, dur: 1.3, delay: 0.2 },
 ];
 
+const DIVE_CLOUDS = [
+  { left: "-18vw", width: "62vw", height: "30vh", alpha: 0.32, blur: 26, start: 0.05, dur: 0.85 },
+  { left: "52vw", width: "58vw", height: "26vh", alpha: 0.3, blur: 28, start: 0.1, dur: 0.78 },
+  { left: "-28vw", width: "156vw", height: "132vh", alpha: 0.92, blur: 38, start: 0.16, dur: 0.58 },
+  { left: "-12vw", width: "128vw", height: "96vh", alpha: 0.72, blur: 32, start: 0.26, dur: 0.5 },
+  { left: "3vw", width: "46vw", height: "18vh", alpha: 0.5, blur: 14, start: 0.32, dur: 0.42 },
+  { left: "58vw", width: "42vw", height: "15vh", alpha: 0.46, blur: 12, start: 0.36, dur: 0.4 },
+];
+
 const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
   function SectionFinale({ timelines }, ref) {
     const stickyRef = useRef<HTMLDivElement>(null);
+    const cloudsRef = useRef<HTMLDivElement>(null);
 
     useGSAP(
       () => {
@@ -147,13 +157,39 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
         if (!timelines || !sticky) return;
         const { finale } = timelines;
 
+        const clouds = cloudsRef.current;
+        if (clouds) {
+          clouds.querySelectorAll("[data-dive-cloud]").forEach((el, i) => {
+            const cfg = DIVE_CLOUDS[i];
+            finale.fromTo(
+              el,
+              { y: 0 },
+              { y: "-280vh", duration: cfg.dur, ease: "none" },
+              cfg.start,
+            );
+          });
+          const flash = clouds.querySelector("[data-dive-flash]");
+          if (flash) {
+            finale.to(
+              flash,
+              { opacity: 0.55, duration: 0.14, ease: "power2.in" },
+              0.3,
+            );
+            finale.to(
+              flash,
+              { opacity: 0, duration: 0.34, ease: "power2.out" },
+              0.46,
+            );
+          }
+        }
+
         const fx = sticky.querySelector("[data-fall-fx]");
         if (fx) {
           finale.fromTo(
             fx,
             { opacity: 0 },
-            { opacity: 1, duration: 0.3, ease: "power1.in" },
-            FINALE.fall + 0.3,
+            { opacity: 1, duration: 0.35, ease: "power1.in" },
+            FINALE.fall - 0.1,
           );
           finale.to(
             fx,
@@ -219,6 +255,16 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
           FINALE.credits,
         );
 
+        const hint = sticky.querySelector("[data-fin-hint]");
+        if (hint) {
+          finale.fromTo(
+            hint,
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+            FINALE.credits + 0.45,
+          );
+        }
+
         return () => {
           if (split) split.revert();
         };
@@ -231,6 +277,43 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
         ref={ref}
         style={{ position: "relative", height: "450vh", zIndex: 1 }}
       >
+        <div
+          ref={cloudsRef}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 34,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
+        >
+          {DIVE_CLOUDS.map((c, i) => (
+            <span
+              key={`c${i}`}
+              data-dive-cloud
+              style={{
+                position: "absolute",
+                left: c.left,
+                top: "104vh",
+                width: c.width,
+                height: c.height,
+                borderRadius: "50%",
+                background: `radial-gradient(ellipse, rgba(223, 232, 255, ${c.alpha}), rgba(223, 232, 255, 0) 70%)`,
+                filter: `blur(${c.blur}px)`,
+              }}
+            />
+          ))}
+          <div
+            data-dive-flash
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(circle at 50% 42%, rgba(232, 240, 255, 0.85), rgba(210, 225, 255, 0.35) 60%, rgba(190, 210, 240, 0.12))",
+              opacity: 0,
+            }}
+          />
+        </div>
         <div
           ref={stickyRef}
           style={{
@@ -381,6 +464,53 @@ const SectionFinale = forwardRef<HTMLElement, SectionFinaleProps>(
               ))}
             </div>
           </div>
+
+          <style>
+            {`
+              @keyframes finHintPulse {
+                0%, 100% { opacity: 0.55; }
+                50% { opacity: 1; }
+              }
+            `}
+          </style>
+          <p
+            data-fin-hint
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: "22vh",
+              transform: "translateX(170px)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.7rem",
+              fontSize: "0.68rem",
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: "#8fa3c4",
+              maxWidth: "210px",
+              textAlign: "left",
+              lineHeight: 2,
+              opacity: 0,
+            }}
+          >
+            <span style={{ animation: "finHintPulse 2.2s ease-in-out infinite" }}>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              >
+                <path d="M3.5 12a8.5 8.5 0 1 1 2.5 6" />
+                <path d="M6 21.5v-3.8h3.8" />
+              </svg>
+            </span>
+            <span style={{ animation: "finHintPulse 2.2s ease-in-out infinite" }}>
+              Segure e arraste para girar a lata
+            </span>
+          </p>
 
           <div
             style={{

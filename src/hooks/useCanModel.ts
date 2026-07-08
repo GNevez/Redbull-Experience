@@ -38,6 +38,24 @@ export function useCanParts(): CanParts {
 
     const material = (mesh.material as THREE.Material).clone();
 
+    const dbg =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : null;
+
+    if (material instanceof THREE.MeshPhysicalMaterial) {
+      material.roughness = Math.max(material.roughness, 0.38);
+      material.clearcoat = dbg?.has("nocc") ? 0 : 0.35;
+      material.clearcoatRoughness = 0.32;
+      material.envMapIntensity = dbg?.has("noenv") ? 0 : 0.8;
+      material.normalScale.setScalar(dbg?.has("nonormal") ? 0 : 0.55);
+      if (dbg?.has("nonormal")) material.normalMap = null;
+    } else if (material instanceof THREE.MeshStandardMaterial) {
+      material.roughness = Math.max(material.roughness, 0.38);
+      material.envMapIntensity = 0.8;
+      material.normalScale.setScalar(0.55);
+    }
+
     return { geometry, material };
   }, [scene]);
 }

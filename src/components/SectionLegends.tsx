@@ -38,12 +38,22 @@ const STARS = [
   { left: "84%", top: "88%", size: 2, delay: 0.8 },
 ];
 
+interface Stat {
+  value?: string;
+  count?: number;
+  suffix?: string;
+  label: string;
+}
+
 interface Athlete {
   first: string;
   last: string;
-  eyebrow: string;
+  eyebrow?: string;
+  meta: string;
   feat: string;
-  chips: string[];
+  stats: Stat[];
+  record: string;
+  quote?: string;
   img: string;
   accent: string;
   glow: string;
@@ -58,8 +68,15 @@ const ATHLETES: Athlete[] = [
     first: "Max",
     last: "Verstappen",
     eyebrow: "Fórmula 1 · Red Bull Racing",
+    meta: "Países Baixos · Nº 1 · Na F1 desde 2015",
     feat: "Tetracampeão mundial e a referência absoluta da velocidade moderna.",
-    chips: ["4 títulos mundiais", "60+ vitórias"],
+    stats: [
+      { count: 71, label: "Vitórias em GPs" },
+      { count: 48, label: "Pole Positions" },
+      { count: 129, label: "Pódios" },
+    ],
+    record: "Mais vitórias em uma única temporada da história — 19 em 2023",
+    quote: "O único lugar que importa é o primeiro.",
     img: "/athletes/max.png",
     accent: "#e21b4d",
     glow: "rgba(226, 27, 77, 0.4)",
@@ -69,9 +86,16 @@ const ATHLETES: Athlete[] = [
   {
     first: "Marc",
     last: "Márquez",
-    eyebrow: "MotoGP · #93",
+    eyebrow: "MotoGP · Estrela Vermelha",
+    meta: "Cervera, Espanha · Nº 93",
     feat: "Nove títulos mundiais sobre duas rodas e coragem que dobra a física.",
-    chips: ["9 títulos mundiais", "#93"],
+    stats: [
+      { count: 9, label: "Títulos Mundiais" },
+      { count: 73, label: "Vitórias na MotoGP" },
+      { count: 126, label: "Pódios na MotoGP" },
+    ],
+    record: "Campeão mais jovem da história da MotoGP — aos 20 anos, em 2013",
+    quote: "Eu poderia ter feito uma corrida conservadora, mas eu tinha que arriscar.",
     img: "/athletes/marquez.png",
     accent: "#ff5a36",
     glow: "rgba(255, 90, 54, 0.4)",
@@ -82,8 +106,15 @@ const ATHLETES: Athlete[] = [
     first: "Letícia",
     last: "Bufoni",
     eyebrow: "Skate Street · Brasil",
+    meta: "São Paulo, Brasil · Street",
     feat: "A rainha do street que levou o skate brasileiro para o topo do mundo.",
-    chips: ["6 ouros no X Games", "São Paulo · BR"],
+    stats: [
+      { count: 6, label: "Ouros no X Games" },
+      { count: 12, label: "Medalhas X Games" },
+      { count: 5, suffix: "x", label: "Recordista Guinness" },
+    ],
+    record: "Mulher com mais medalhas na história do X Games — 12",
+    quote: "Eu amo minhas cicatrizes. Não escondo nenhuma, pois elas mostram que eu realmente amo o que eu faço.",
     img: "/athletes/bufoni.png",
     accent: "#ff2d78",
     glow: "rgba(255, 45, 120, 0.4)",
@@ -93,11 +124,17 @@ const ATHLETES: Athlete[] = [
   {
     first: "Felix",
     last: "Baumgartner",
-    eyebrow: "Red Bull Stratos",
+    // eyebrow: "Red Bull Stratos",
+    meta: "Salzburgo, Áustria",
     years: "1969 — 2025",
     feat: "Saltou da estratosfera e provou que o céu nunca foi o limite.",
+    stats: [
+      { count: 38969, label: "Metros de Altitude" },
+      { count: 1357, label: "km/h em Queda Livre" },
+      { value: "4:19", label: "Minutos em Queda" },
+    ],
+    record: "Primeiro humano a romper a barreira do som em queda livre — Mach 1,25",
     memorial: "Em memória. Obrigado por nos ensinar a voar. ✦",
-    chips: ["39.000 m", "1.357 km/h"],
     img: "/athletes/felix.png",
     accent: "#9db8e8",
     glow: "rgba(157, 184, 232, 0.35)",
@@ -105,6 +142,112 @@ const ATHLETES: Athlete[] = [
     side: "center",
   },
 ];
+
+function StatsBlock({ a, center }: { a: Athlete; center?: boolean }) {
+  return (
+    <div
+      data-info
+      style={{
+        marginTop: "1.6rem",
+        width: "100%",
+        maxWidth: center ? "600px" : "none",
+        opacity: 0,
+      }}
+    >
+      <div
+        data-rule
+        style={{
+          height: "1px",
+          width: "100%",
+          background: center
+            ? `linear-gradient(90deg, transparent, ${a.accent}, transparent)`
+            : `linear-gradient(90deg, ${a.accent}, transparent 75%)`,
+          transformOrigin: center ? "center center" : "left center",
+          marginBottom: "1.15rem",
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "stretch" }}>
+        {a.stats.map((s, j) => (
+          <div
+            key={s.label}
+            style={{
+              flex: 1,
+              paddingLeft: j > 0 ? "1.3rem" : 0,
+              marginLeft: j > 0 ? "1.3rem" : 0,
+              borderLeft:
+                j > 0 ? "1px solid rgba(244, 244, 246, 0.14)" : "none",
+              textAlign: center ? "center" : "left",
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "var(--font-display), sans-serif",
+                fontSize: "clamp(1.7rem, 2.6vw, 2.5rem)",
+                lineHeight: 1,
+                color: "#f4f4f6",
+              }}
+            >
+              {s.count !== undefined ? (
+                <span data-count data-target={s.count}>
+                  0
+                </span>
+              ) : (
+                s.value
+              )}
+              {s.suffix && (
+                <span style={{ color: a.accent }}>{s.suffix}</span>
+              )}
+            </div>
+            <div
+              style={{
+                marginTop: "0.5rem",
+                fontSize: "0.64rem",
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: "#8fa3c4",
+              }}
+            >
+              {s.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RecordStrip({ a, center }: { a: Athlete; center?: boolean }) {
+  return (
+    <p
+      data-info
+      style={{
+        marginTop: "1.3rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: center ? "center" : "flex-start",
+        gap: "0.65rem",
+        fontSize: "0.72rem",
+        letterSpacing: "0.16em",
+        textTransform: "uppercase",
+        color: "#8fa3c4",
+        opacity: 0,
+      }}
+    >
+      <span
+        style={{
+          width: "6px",
+          height: "6px",
+          background: a.accent,
+          transform: "rotate(45deg)",
+          flexShrink: 0,
+        }}
+      />
+      <span>
+        <span style={{ color: a.accent }}>Recorde</span> — {a.record}
+      </span>
+    </p>
+  );
+}
 
 export default function SectionLegends({ timelines }: SectionLegendsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -119,6 +262,34 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
         skewX: -14,
       });
       gsap.set(root.querySelector("[data-word]"), { xPercent: 90 });
+
+      root.querySelectorAll("[data-cutout-wrap]").forEach((el, i) => {
+        gsap.to(el, {
+          y: 16 + (i % 2) * 6,
+          rotation: i % 2 === 0 ? -0.8 : 0.8,
+          duration: 2.7 + i * 0.35,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+          delay: i * 0.4,
+        });
+      });
+
+      root.querySelectorAll("[data-glow-pulse]").forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0.45, scale: 0.86 },
+          {
+            opacity: 1,
+            scale: 1.2,
+            duration: 2.2 + i * 0.3,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1,
+            delay: i * 0.55,
+          },
+        );
+      });
 
       if (!timelines) return;
       const { legends } = timelines;
@@ -217,23 +388,83 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
           );
         }
 
+        const glow = layer.querySelector("[data-glow]");
+        if (glow) {
+          legends.fromTo(
+            glow,
+            { opacity: 0, scale: 0.5 },
+            { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" },
+            at + 0.05,
+          );
+        }
+
         const img = layer.querySelector("[data-cutout]");
         if (img) {
-          legends.fromTo(
-            img,
-            { clipPath: "inset(100% 0% 0% 0%)", y: 60 },
-            {
-              clipPath: "inset(0% 0% 0% 0%)",
-              y: 0,
-              duration: 0.55,
-              ease: "power3.out",
-            },
-            at + 0.08,
-          );
+          const side = ATHLETES[i].side;
+          if (side === "center") {
+            legends.fromTo(
+              img,
+              {
+                yPercent: 24,
+                scale: 1.14,
+                opacity: 0,
+                filter: "blur(26px) brightness(2)",
+              },
+              {
+                yPercent: 0,
+                scale: 1,
+                opacity: 1,
+                filter: "blur(0px) brightness(1)",
+                duration: 0.75,
+                ease: "power3.out",
+              },
+              at + 0.08,
+            );
+          } else {
+            const dir = side === "right" ? 1 : -1;
+            legends.fromTo(
+              img,
+              {
+                xPercent: dir * 55,
+                skewX: dir * 12,
+                scaleX: 1.32,
+                scaleY: 0.86,
+                opacity: 0,
+                filter: "blur(22px) brightness(2.4)",
+              },
+              {
+                xPercent: 0,
+                skewX: 0,
+                scaleX: 1,
+                scaleY: 1,
+                opacity: 1,
+                filter: "blur(0px) brightness(1)",
+                duration: 0.5,
+                ease: "power4.out",
+              },
+              at + 0.08,
+            );
+          }
           legends.to(
             img,
-            { y: -16, duration: isLast ? 1.4 : 0.85, ease: "sine.inOut" },
-            at + 0.65,
+            {
+              y: -16,
+              duration: isLast
+                ? LEGENDS.chapterDur + 0.6
+                : LEGENDS.chapterDur - 0.7,
+              ease: "sine.inOut",
+            },
+            at + 0.78,
+          );
+        }
+
+        const shine = layer.querySelector("[data-shine]");
+        if (shine) {
+          legends.fromTo(
+            shine,
+            { xPercent: 0 },
+            { xPercent: 420, duration: 0.55, ease: "power2.inOut" },
+            at + (ATHLETES[i].side === "center" ? 0.55 : 0.36),
           );
         }
 
@@ -250,6 +481,33 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
           },
           at + 0.18,
         );
+
+        const rule = layer.querySelector("[data-rule]");
+        if (rule) {
+          legends.fromTo(
+            rule,
+            { scaleX: 0 },
+            { scaleX: 1, duration: 0.55, ease: "power2.out" },
+            at + 0.4,
+          );
+        }
+
+        layer.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+          const target = Number(el.dataset.target ?? 0);
+          const proxy = { v: 0 };
+          legends.to(
+            proxy,
+            {
+              v: target,
+              duration: 0.65,
+              ease: "power2.out",
+              onUpdate: () => {
+                el.textContent = Math.round(proxy.v).toLocaleString("pt-BR");
+              },
+            },
+            at + 0.4,
+          );
+        });
       });
 
       root.querySelectorAll("[data-rail-item]").forEach((el, i) => {
@@ -292,8 +550,19 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
 
       timelines.finale.to(
         root,
-        { opacity: 0, yPercent: -26, duration: 0.3, ease: "power2.in" },
+        {
+          yPercent: -116,
+          scaleY: 1.08,
+          transformOrigin: "50% 100%",
+          duration: 0.55,
+          ease: "power3.in",
+        },
         0.02,
+      );
+      timelines.finale.to(
+        root,
+        { opacity: 0, duration: 0.12, ease: "power1.in" },
+        0.45,
       );
     },
     { scope: rootRef, dependencies: [timelines] },
@@ -412,16 +681,78 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
                 padding: "0 7vw",
               }}
             >
-              <img
-                data-cutout
-                src={a.img}
-                alt={`${a.first} ${a.last}`}
+              <div
+                data-cutout-wrap
                 style={{
-                  height: "min(68vh, 640px)",
-                  filter: `drop-shadow(0 30px 60px rgba(0,0,0,0.5)) drop-shadow(0 0 46px ${a.glow})`,
+                  position: "relative",
                   flexShrink: 0,
+                  filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.5))",
                 }}
-              />
+              >
+                <div
+                  data-glow
+                  style={{
+                    position: "absolute",
+                    left: "-32%",
+                    right: "-32%",
+                    top: "-8%",
+                    bottom: "-4%",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <span
+                    data-glow-pulse
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "50%",
+                      background: `radial-gradient(50% 50% at 50% 50%, ${a.glow}, transparent 72%)`,
+                      filter: "blur(38px)",
+                      display: "block",
+                    }}
+                  />
+                </div>
+                <img
+                  data-cutout
+                  src={a.img}
+                  alt={`${a.first} ${a.last}`}
+                  style={{
+                    position: "relative",
+                    height: "min(68vh, 640px)",
+                    display: "block",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    overflow: "hidden",
+                    pointerEvents: "none",
+                    WebkitMaskImage: `url(${a.img})`,
+                    maskImage: `url(${a.img})`,
+                    WebkitMaskSize: "contain",
+                    maskSize: "contain",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                  }}
+                >
+                  <span
+                    data-shine
+                    style={{
+                      position: "absolute",
+                      top: "-12%",
+                      bottom: "-12%",
+                      left: "-60%",
+                      width: "55%",
+                      transform: "skewX(-18deg)",
+                      background:
+                        "linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%)",
+                    }}
+                  />
+                </div>
+              </div>
               <div style={{ maxWidth: "520px" }}>
                 <p
                   data-info
@@ -463,7 +794,20 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
                 <p
                   data-info
                   style={{
-                    marginTop: "1.2rem",
+                    marginTop: "0.9rem",
+                    fontSize: "0.72rem",
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    color: "rgba(244, 244, 246, 0.45)",
+                    opacity: 0,
+                  }}
+                >
+                  {a.meta}
+                </p>
+                <p
+                  data-info
+                  style={{
+                    marginTop: "1.1rem",
                     color: "#b9c4d8",
                     fontSize: "clamp(1rem, 1.35vw, 1.15rem)",
                     lineHeight: 1.65,
@@ -472,33 +816,25 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
                 >
                   {a.feat}
                 </p>
-                <div
-                  data-info
-                  style={{
-                    display: "flex",
-                    gap: "0.8rem",
-                    marginTop: "1.5rem",
-                    flexWrap: "wrap",
-                    opacity: 0,
-                  }}
-                >
-                  {a.chips.map((chip) => (
-                    <span
-                      key={chip}
-                      style={{
-                        padding: "0.55rem 1.05rem",
-                        borderRadius: "999px",
-                        border: `1.5px solid ${a.accent}`,
-                        color: "#f4f4f6",
-                        fontSize: "0.85rem",
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {chip}
-                    </span>
-                  ))}
-                </div>
+                <StatsBlock a={a} />
+                <RecordStrip a={a} />
+                {a.quote && (
+                  <p
+                    data-info
+                    style={{
+                      marginTop: "1.3rem",
+                      paddingLeft: "1rem",
+                      borderLeft: `2px solid ${a.accent}`,
+                      fontStyle: "italic",
+                      color: "#93a2bd",
+                      fontSize: "0.96rem",
+                      lineHeight: 1.6,
+                      opacity: 0,
+                    }}
+                  >
+                    “{a.quote}”
+                  </p>
+                )}
               </div>
             </div>
           ) : (
@@ -552,20 +888,82 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
               >
                 {a.years}
               </p>
-              <img
-                data-cutout
-                src={a.img}
-                alt={`${a.first} ${a.last}`}
+              <div
+                data-cutout-wrap
                 style={{
-                  height: "min(46vh, 430px)",
-                  marginTop: "0.6rem",
-                  filter: `drop-shadow(0 24px 50px rgba(0,0,0,0.5)) drop-shadow(0 0 52px ${a.glow})`,
+                  position: "relative",
+                  marginTop: "0.4rem",
+                  filter: "drop-shadow(0 24px 50px rgba(0,0,0,0.5))",
                 }}
-              />
+              >
+                <div
+                  data-glow
+                  style={{
+                    position: "absolute",
+                    left: "-38%",
+                    right: "-38%",
+                    top: "-16%",
+                    bottom: "-10%",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <span
+                    data-glow-pulse
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "50%",
+                      background: `radial-gradient(50% 50% at 50% 50%, ${a.glow}, transparent 72%)`,
+                      filter: "blur(42px)",
+                      display: "block",
+                    }}
+                  />
+                </div>
+                <img
+                  data-cutout
+                  src={a.img}
+                  alt={`${a.first} ${a.last}`}
+                  style={{
+                    position: "relative",
+                    height: "min(40vh, 390px)",
+                    display: "block",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    overflow: "hidden",
+                    pointerEvents: "none",
+                    WebkitMaskImage: `url(${a.img})`,
+                    maskImage: `url(${a.img})`,
+                    WebkitMaskSize: "contain",
+                    maskSize: "contain",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                  }}
+                >
+                  <span
+                    data-shine
+                    style={{
+                      position: "absolute",
+                      top: "-12%",
+                      bottom: "-12%",
+                      left: "-60%",
+                      width: "55%",
+                      transform: "skewX(-18deg)",
+                      background:
+                        "linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.65) 50%, transparent 100%)",
+                    }}
+                  />
+                </div>
+              </div>
               <p
                 data-info
                 style={{
-                  marginTop: "0.8rem",
+                  marginTop: "0.6rem",
                   maxWidth: "560px",
                   color: "#b9c4d8",
                   fontSize: "clamp(0.98rem, 1.3vw, 1.1rem)",
@@ -575,9 +973,12 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
               >
                 {a.feat}
               </p>
+              <StatsBlock a={a} center />
+              <RecordStrip a={a} center />
               <p
                 data-info
                 style={{
+                  marginTop: "0.5rem",
                   color: "#8fa3c4",
                   fontSize: "0.86rem",
                   letterSpacing: "0.18em",
@@ -587,31 +988,6 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
               >
                 {a.memorial}
               </p>
-              <div
-                data-info
-                style={{
-                  display: "flex",
-                  gap: "0.8rem",
-                  marginTop: "0.4rem",
-                  opacity: 0,
-                }}
-              >
-                {a.chips.map((chip) => (
-                  <span
-                    key={chip}
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderRadius: "999px",
-                      border: `1.5px solid rgba(157, 184, 232, 0.55)`,
-                      color: "#dfe8ff",
-                      fontSize: "0.82rem",
-                      letterSpacing: "0.08em",
-                    }}
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
             </div>
           )}
         </div>
@@ -626,6 +1002,7 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
           transform: "translateY(-50%)",
           display: "flex",
           flexDirection: "column",
+          alignItems: "flex-end",
           gap: "1.5rem",
           opacity: 0,
         }}
@@ -641,6 +1018,16 @@ export default function SectionLegends({ timelines }: SectionLegendsProps) {
               opacity: 0.28,
             }}
           >
+            <span
+              style={{
+                fontSize: "0.58rem",
+                letterSpacing: "0.24em",
+                textTransform: "uppercase",
+                color: "rgba(244, 244, 246, 0.55)",
+              }}
+            >
+              {a.last}
+            </span>
             <span
               style={{
                 fontFamily: "var(--font-display), sans-serif",

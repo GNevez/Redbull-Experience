@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -34,6 +34,82 @@ export default function Scene({ timelines }: SceneProps) {
   const spotRef = useRef<THREE.SpotLight>(null);
   const flashRef = useRef<THREE.PointLight>(null);
   const camera = useThree((state) => state.camera);
+  const dragRef = useRef({
+    active: false,
+    lastX: 0,
+    lastY: 0,
+    velY: 0,
+    offY: 0,
+    offX: 0,
+  });
+
+  useEffect(() => {
+    const atPageEnd = () =>
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 2;
+
+    const onDown = (e: PointerEvent) => {
+      if (!atPageEnd()) return;
+      if ((e.target as HTMLElement | null)?.closest("a, button")) return;
+      e.preventDefault();
+      const d = dragRef.current;
+      d.active = true;
+      d.lastX = e.clientX;
+      d.lastY = e.clientY;
+      d.velY = 0;
+      document.body.style.cursor = "grabbing";
+    };
+
+    const onMove = (e: PointerEvent) => {
+      const d = dragRef.current;
+      if (!d.active) return;
+      const dx = e.clientX - d.lastX;
+      const dy = e.clientY - d.lastY;
+      d.lastX = e.clientX;
+      d.lastY = e.clientY;
+      d.offY += dx * 0.009;
+      d.velY = dx * 0.009;
+      d.offX = THREE.MathUtils.clamp(d.offX + dy * 0.005, -0.45, 0.45);
+    };
+
+    const onUp = () => {
+      const d = dragRef.current;
+      if (!d.active) return;
+      d.active = false;
+      document.body.style.cursor = atPageEnd() ? "grab" : "";
+    };
+
+    const onScroll = () => {
+      if (dragRef.current.active) return;
+      document.body.style.cursor = atPageEnd() ? "grab" : "";
+    };
+
+    const onReset = () => {
+      const d = dragRef.current;
+      d.active = false;
+      d.offX = 0;
+      d.offY = 0;
+      d.velY = 0;
+      document.body.style.cursor = "";
+    };
+
+    window.addEventListener("experience-reset", onReset);
+    window.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("experience-reset", onReset);
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("scroll", onScroll);
+      document.body.style.cursor = "";
+    };
+  }, []);
 
   useGSAP(
     () => {
@@ -382,24 +458,33 @@ export default function Scene({ timelines }: SceneProps) {
       }
 
       const { finale } = timelines;
+      finale.set(
+        mainCan.position,
+        { x: 0, y: 8.5, z: -0.3 },
+        FINALE.fall - 0.05,
+      );
+      finale.set(
+        mainCan.rotation,
+        { x: 0.3, y: -Math.PI * 1.2, z: 0.2 },
+        FINALE.fall - 0.05,
+      );
+      finale.set(
+        mainCan.scale,
+        { x: CAN_SCALE * 0.95, y: CAN_SCALE * 0.95, z: CAN_SCALE * 0.95 },
+        FINALE.fall - 0.05,
+      );
       finale.set(mainCan, { visible: true }, FINALE.fall - 0.05);
+
+      finale.to(
+        camera.position,
+        { z: 5.45, duration: 0.5, ease: "power2.in" },
+        0.06,
+      );
 
       finale.fromTo(
         mainCan.position,
         { x: 0, y: 8.5, z: -0.3 },
         { y: 0.55, duration: 0.5, ease: "power3.out", immediateRender: false },
-        FINALE.fall,
-      );
-      finale.fromTo(
-        mainCan.scale,
-        { x: CAN_SCALE * 0.95, y: CAN_SCALE * 0.95, z: CAN_SCALE * 0.95 },
-        {
-          x: CAN_SCALE * 0.95,
-          y: CAN_SCALE * 0.95,
-          z: CAN_SCALE * 0.95,
-          duration: 0.1,
-          immediateRender: false,
-        },
         FINALE.fall,
       );
       finale.fromTo(
@@ -508,9 +593,16 @@ export default function Scene({ timelines }: SceneProps) {
     const mainCan = mainCanRef.current;
     if (mainCan && timelines.finale.time() > FINALE.arrival + 0.85) {
       const t = state.clock.elapsedTime;
+      const d = dragRef.current;
+      if (!d.active) {
+        d.offY += d.velY;
+        d.velY *= 0.94;
+        d.offX += (0 - d.offX) * 0.03;
+      }
       mainCan.position.y = -1.15 + Math.sin(t * 0.8) * 0.07;
       mainCan.rotation.z = -0.14 + Math.sin(t * 0.6 + 1.2) * 0.05;
-      mainCan.rotation.y = 0.08 + Math.sin(t * 0.35) * 0.3;
+      mainCan.rotation.y = 0.08 + Math.sin(t * 0.35) * 0.3 + d.offY;
+      mainCan.rotation.x = 0.02 + d.offX;
     }
 
     const { burst, fall } = timelines;
