@@ -7,4 +7,3 @@
 .env*.local
 next-env.d.ts
 tsconfig.tsbuildinfo
-/public/videos/*.mp4

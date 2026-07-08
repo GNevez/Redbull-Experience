@@ -37,7 +37,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
     caption: "Drift na Montanha",
     subtitle: "Rally Driver vs Drift Mountain Challenge · Red Bull Motorsports",
     video: "/videos/drift.mp4",
-    start: 83,
+    start: 50,
     youtube: "https://www.youtube.com/watch?v=Kyqhsds2gzw&t=94s",
     tilt: -8,
     lift: "1.5rem",
