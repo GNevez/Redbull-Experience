@@ -36,7 +36,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
     caption: "Drift na Montanha",
     subtitle: "Rally Driver vs Drift Mountain Challenge · Red Bull Motorsports",
-    video: "/videos/drift.mp4",
+    video: "https://p1cg78vzqn.ufs.sh/f/CF1g09Qq2EjMWUqISLBJI9QBAGfdzZgwPS4nxv6UucaRNs8j",
     start: 50,
     youtube: "https://www.youtube.com/watch?v=Kyqhsds2gzw&t=94s",
     tilt: -8,
@@ -45,7 +45,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
     caption: "Rumo ao Vulcão",
     subtitle: "Flying Into An Active Volcano · Red Bull",
-    video: "/videos/voador.mp4",
+    video: "https://p1cg78vzqn.ufs.sh/f/CF1g09Qq2EjM40uEiM3OqWdjKAZyr08icYxJpthCLRbws3gB",
     start: 50,
     youtube: "https://www.youtube.com/watch?v=dGFPi5sZUGg",
     tilt: 5,
@@ -54,7 +54,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
     caption: "Avião no Túnel",
     subtitle: "Flying A Plane Through Tunnels: World First · Red Bull",
-    video: "/videos/avi%C3%A3o.mp4",
+    video: "https://p1cg78vzqn.ufs.sh/f/CF1g09Qq2EjMvJG4x4oTx3JVwIy7OkEKlNmMt4XeZ8orsABf",
     start: 62,
     youtube: "https://www.youtube.com/watch?v=19fQAxys9q8",
     tilt: -4,
@@ -63,7 +63,7 @@ const CARDS: (AdventureCard & { tilt: number; lift: string })[] = [
   {
     caption: "Rampage 2022",
     subtitle: "First Full Run down Red Bull Rampage 2022 · Red Bull Bike",
-    video: "/videos/bike.mp4",
+    video: "https://p1cg78vzqn.ufs.sh/f/CF1g09Qq2EjM39AsbqNucHfj56PEbhneAiJlkF4GR978rtWN",
     start: 26,
     youtube: "https://www.youtube.com/watch?v=a0XBHsSOEos",
     tilt: 7,
@@ -520,7 +520,7 @@ export default function LiquidOverlay({ timelines }: LiquidOverlayProps) {
                       src={card.video}
                       muted
                       playsInline
-                      preload="metadata"
+                      preload="auto"
                       onLoadedMetadata={(e) => {
                         e.currentTarget.currentTime = card.start;
                       }}
